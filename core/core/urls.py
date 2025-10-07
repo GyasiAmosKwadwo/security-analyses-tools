@@ -16,9 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from .views import get_whois_info
+from core.views import get_whois_info, hash_string
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', get_whois_info, name="whois"),
+    path('hash/', hash_string, name="hash"),
 ]

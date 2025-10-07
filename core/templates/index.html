@@ -6,7 +6,7 @@
     <title>Document</title>
 </head>
 <body>
-    <form method="post">
+    <form method="post" action="{% url 'whois' %}">
     {% csrf_token %}
     <input type="text" name="domain_name" placeholder="Enter domain name">
     <button type="submit">Lookup</button>
@@ -19,6 +19,40 @@
             <li>{{ key }}: {{ value }}</li>
         {% endfor %}
     </ul>
+{% elif error %}
+    <p>Error: {{ error }}</p>
+{% endif %}
+
+<!-- Hashing Form -->
+<form method="post" enctype="multipart/form-data" action ="{% url 'hash' %}">
+    {% csrf_token %}
+    <textarea name="input_string" placeholder="Enter string to hash"></textarea>
+    <input type="file" name="file">
+    <button type="submit">Hash and Verify</button>
+</form>
+
+{% if hash_results %}
+    <h2>Hash Results for String:</h2>
+    <ul>
+        {% for hash_type, hash_value in hash_results.items %}
+            <li>{{ hash_type }}: {{ hash_value }}</li>
+        {% endfor %}
+    </ul>
+    <p>Input String: {{ input_string }}</p>
+    {% if hash_match %}
+        <p>{{ hash_match }}</p>
+    {% endif %}
+{% elif hash_results_file %}
+    <h2>Hash Results for File:</h2>
+    <ul>
+        {% for hash_type, hash_value in hash_results_file.items %}
+            <li>{{ hash_type }}: {{ hash_value }}</li>
+        {% endfor %}
+    </ul>
+    <p>File Name: {{ file_name }}</p>
+    {% if hash_match_file %}
+        <p>{{ hash_match_file }}</p>
+    {% endif %}
 {% elif error %}
     <p>Error: {{ error }}</p>
 {% endif %}
