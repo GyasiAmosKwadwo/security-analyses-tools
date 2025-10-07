@@ -6,7 +6,7 @@
     <title>Document</title>
 </head>
 <body>
-    <form method="post">
+    <form method="post" action="{% url 'whois' %}">
     {% csrf_token %}
     <input type="text" name="domain_name" placeholder="Enter domain name">
     <button type="submit">Lookup</button>
@@ -21,6 +21,22 @@
     </ul>
 {% elif error %}
     <p>Error: {{ error }}</p>
+{% endif %}
+
+<!-- Hashing Form -->
+<form method="post" action="{% url 'hash' %}">
+    {% csrf_token %}
+    <input type="text" name="input_string" placeholder="Enter string to hash">
+    <button type="submit">Hash</button>
+</form>
+
+{% if hash_results %}
+    <h2>Hash Results:</h2>
+    <ul>
+        {% for algo, hash in hash_results.items %}
+            <li>{{ algo }}: {{ hash }}</li>
+        {% endfor %}
+    </ul>
 {% endif %}
 
 
