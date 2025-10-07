@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form method="post">
+    {% csrf_token %}
+    <input type="text" name="domain_name" placeholder="Enter domain name">
+    <button type="submit">Lookup</button>
+</form>
+
+{% if response %}
+    <h2>WHOIS Response:</h2>
+    <ul>
+        {% for key, value in response %}
+            <li>{{ key }}: {{ value }}</li>
+        {% endfor %}
+    </ul>
+{% elif error %}
+    <p>Error: {{ error }}</p>
+{% endif %}
+
+
+</body>
+</html>
