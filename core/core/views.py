@@ -4,7 +4,11 @@ import hashlib
 import requests
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
-from django.conf import settings
+from typing import Dict, Any
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import render
+import os
+
 
 def get_whois_info(request: HttpRequest) -> HttpResponse:
     """
@@ -90,37 +94,66 @@ def hash_string(request: HttpRequest) -> HttpResponse:
 
     return render(request, 'index.html', context)
 
+
+
+
+API_KEY = os.getenv('VT_API_KEY')
+
+def get_vt_headers():
+    return {
+        "accept": "application/json",
+        "x-apikey": API_KEY
+    }
+
+def domain_report(domain):
+    domain = domain.replace("http://", "").replace("https://", "").replace("www.", "")
+    url = f"https://www.virustotal.com/api/v3/domains/{domain}"
+    response = requests.get(url, headers=get_vt_headers())
+    return response.json()
+
+def ip_address_report(ip):
+    url = f"https://www.virustotal.com/api/v3/ip_addresses/{ip}"
+    response = requests.get(url, headers=get_vt_headers())
+    return response.json()
+
+def file_report(file_hash):
+    url = f"https://www.virustotal.com/api/v3/files/{file_hash}"
+    response = requests.get(url, headers=get_vt_headers())
+    return response.json()
+
 def check_url_status(request: HttpRequest) -> HttpResponse:
-    """
-    Check HTTP status for given URL or list of URLs from file.
-    """
     context: Dict[str, Any] = {}
     if request.method == "POST":
         domain = request.POST.get("domain_name", '').strip()
         file = request.FILES.get("file")
-        timeout = getattr(settings, 'URL_TIMEOUT', 5)
 
         if not domain and not file:
-            context['error'] = 'Please provide a domain name or upload a file'
+            context['error'] = 'Please provide a domain name or upload a file.'
             return render(request, 'index.html', context)
 
-        def check_single_url(url: str) -> str:
-            if not url.startswith(('http://', 'https://')):
-                url = f"https://{url}"
-            try:
-                response = requests.get(url, timeout=timeout)
-                return f"URL: {url} - Status Code: {response.status_code}"
-            except requests.RequestException as e:
-                return f"URL: {url} - Error: {str(e)}"
-
+        # Domain analysis
         if domain:
-            context['url_status'] = check_single_url(domain)
-        elif file:
-            url_statuses = []
-            for line in file:
-                domain = line.decode('utf-8').strip()
-                if domain:
-                    url_statuses.append(check_single_url(domain))
-            context['url_statuses'] = url_statuses
+            vt_domain = domain_report(domain)
+            context['vt_domain'] = vt_domain
+
+            # Optionally, extract IP from domain and get IP report
+            try:
+                ip = requests.get(f"https://dns.google/resolve?name={domain}").json()['Answer'][0]['data']
+                vt_ip = ip_address_report(ip)
+                context['vt_ip'] = vt_ip
+            except Exception:
+                context['vt_ip'] = None
+
+        # File analysis
+        if file:
+            # Calculate file hash (SHA256)
+            sha256 = hashlib.sha256()
+            for chunk in file.chunks():
+                sha256.update(chunk)
+            file_hash = sha256.hexdigest()
+            context['file_hash'] = file_hash
+
+            vt_file = file_report(file_hash)
+            context['vt_file'] = vt_file
 
     return render(request, 'index.html', context)

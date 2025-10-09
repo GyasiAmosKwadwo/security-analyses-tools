@@ -137,27 +137,50 @@
             <button type="submit">Check Status</button>
         </form>
 
-        {% if url_status %}
+        {% if vt_domain %}
+    <div class="results">
+        <h3>VirusTotal Domain Report</h3>
+        <p><strong>Domain:</strong> {{ vt_domain.data.id }}</p>
+        <p><strong>Categories:</strong> {{ vt_domain.data.attributes.categories }}</p>
+        <p><strong>Last Analysis Date:</strong> {{ vt_domain.data.attributes.last_analysis_date }}</p>
+        <p><strong>Community Score:</strong> {{ vt_domain.data.attributes.reputation }}</p>
+        <p><strong>Trackers:</strong> {{ vt_domain.data.attributes.trackers }}</p>
+        <!-- Add more fields as needed -->
+    </div>
+{% endif %}
+
+{% if vt_ip %}
+    <div class="results">
+        <h3>VirusTotal IP Report</h3>
+        <p><strong>IP:</strong> {{ vt_ip.data.id }}</p>
+        <p><strong>Country:</strong> {{ vt_ip.data.attributes.country }}</p>
+        <p><strong>Last Analysis Date:</strong> {{ vt_ip.data.attributes.last_analysis_date }}</p>
+        <!-- Add more fields as needed -->
+    </div>
+{% endif %}
+
+{% if vt_file %}
+    <div class="results">
+        <h3>VirusTotal File Report</h3>
+        <p><strong>SHA256:</strong> {{ file_hash }}</p>
+        <p><strong>Type:</strong> {{ vt_file.data.attributes.type_description }}</p>
+        <p><strong>First Submission:</strong> {{ vt_file.data.attributes.first_submission_date }}</p>
+        <p><strong>Last Analysis:</strong> {{ vt_file.data.attributes.last_analysis_date }}</p>
+        <p><strong>Community Score:</strong> {{ vt_file.data.attributes.reputation }}</p>
+        <p><strong>Categories:</strong> {{ vt_file.data.attributes.tags }}</p>
+        <!-- Add more fields as needed -->
+    </div>
+{% endif %}
+
+        {% if url_results %}
             <div class="results">
-                <h3>URL Status:</h3>
-                <p>{{ url_status }}</p>
-            </div>
-        {% elif url_statuses %}
-            <div class="results">
-                <h3>Bulk URL Status Results:</h3>
+                <h3>URL Status Results:</h3>
                 <ul>
-                    {% for status in url_statuses %}
-                        <li>{{ status }}</li>
+                    {% for url, status in url_results.items %}
+                        <li><strong>{{ url }}:</strong> {{ status }}</li>
                     {% endfor %}
                 </ul>
             </div>
         {% endif %}
-    </div>
-
-    {% if error %}
-        <div class="error">
-            <strong>Error:</strong> {{ error }}
-        </div>
-    {% endif %}
-</body>
+    </div></body>
 </html>
