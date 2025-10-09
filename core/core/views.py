@@ -74,7 +74,7 @@ def get_whois_info(request: HttpRequest) -> HttpResponse:
             return render(request, 'index.html', context)
         
         try:
-            w = whois.whois(domain_name)
+            w = whois.whois(domain_name, timeout=10)
             context['response'] = w.items()
         except Exception as e:
             context['error'] = f'WHOIS lookup failed: {str(e)}'
@@ -141,7 +141,12 @@ def hash_string(request: HttpRequest) -> HttpResponse:
 def check_url_status(request: HttpRequest) -> HttpResponse:
     """Analyze URLs and files using VirusTotal API."""
     context: Dict[str, Any] = {}
-    
+
+    if not API_KEY:
+        context['domain_error'] = 'VirusTotal API key not configured'
+        context['file_error'] = 'VirusTotal API key not configured'
+        return render(request, 'index.html', context)
+
     if request.method == "POST":
         domain = request.POST.get("domain_name", '').strip()
         file = request.FILES.get("file")

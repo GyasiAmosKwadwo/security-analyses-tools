@@ -9,5 +9,10 @@
             "src": "/(.*)",
             "dest": "core/wsgi.py"
         }
-    ]
+    ],
+    "functions": {
+        "core/wsgi.py": {
+            "maxDuration": 300
+        }
+    }
 }
