@@ -3,60 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Security Analysis Tools</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .tool-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .results {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .error {
+            color: red;
+            padding: 10px;
+            background-color: #ffe6e6;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 <body>
-    <form method="post" action="{% url 'whois' %}">
-    {% csrf_token %}
-    <input type="text" name="domain_name" placeholder="Enter domain name">
-    <button type="submit">Lookup</button>
-</form>
+    <!-- WHOIS Lookup Section -->
+    <div class="tool-section">
+        <h2>WHOIS Lookup</h2>
+        <form method="post" action="{% url 'whois' %}">
+            {% csrf_token %}
+            <input type="text" name="domain_name" placeholder="Enter domain name" required>
+            <button type="submit">Lookup</button>
+        </form>
 
-{% if response %}
-    <h2>WHOIS Response:</h2>
-    <ul>
-        {% for key, value in response %}
-            <li>{{ key }}: {{ value }}</li>
-        {% endfor %}
-    </ul>
-{% elif error %}
-    <p>Error: {{ error }}</p>
-{% endif %}
+        {% if response %}
+            <div class="results">
+                <h3>WHOIS Response:</h3>
+                <ul>
+                    {% for key, value in response %}
+                        <li><strong>{{ key }}:</strong> {{ value }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
 
-<!-- Hashing Form -->
-<form method="post" enctype="multipart/form-data" action ="{% url 'hash' %}">
-    {% csrf_token %}
-    <textarea name="input_string" placeholder="Enter string to hash"></textarea>
-    <input type="file" name="file">
-    <button type="submit">Hash and Verify</button>
-</form>
+    <!-- Hash Generator Section -->
+    <div class="tool-section">
+        <h2>Hash Generator</h2>
+        <form method="post" enctype="multipart/form-data" action="{% url 'hash' %}">
+            {% csrf_token %}
+            <div>
+                <textarea name="input_string" placeholder="Enter string to hash" rows="4"></textarea>
+            </div>
+            <div>
+                <input type="file" name="file">
+            </div>
+            <div>
+                <input type="text" name="given_hash" placeholder="Enter hash to verify (optional)">
+                <select name="hash_type">
+                    <option value="MD5">MD5</option>
+                    <option value="SHA1">SHA1</option>
+                    <option value="SHA256">SHA256</option>
+                    <option value="SHA3_256">SHA3-256</option>
+                    <option value="BLAKE2B">BLAKE2b</option>
+                </select>
+            </div>
+            <button type="submit">Hash and Verify</button>
+        </form>
 
-{% if hash_results %}
-    <h2>Hash Results for String:</h2>
-    <ul>
-        {% for hash_type, hash_value in hash_results.items %}
-            <li>{{ hash_type }}: {{ hash_value }}</li>
-        {% endfor %}
-    </ul>
-    <p>Input String: {{ input_string }}</p>
-    {% if hash_match %}
-        <p>{{ hash_match }}</p>
+        {% if hash_results %}
+            <div class="results">
+                <h3>Hash Results for String:</h3>
+                <ul>
+                    {% for hash_type, hash_value in hash_results.items %}
+                        <li><strong>{{ hash_type }}:</strong> {{ hash_value }}</li>
+                    {% endfor %}
+                </ul>
+                <p><strong>Input String:</strong> {{ input_string }}</p>
+                {% if hash_match %}
+                    <p>{{ hash_match }}</p>
+                {% endif %}
+            </div>
+        {% elif hash_results_file %}
+            <div class="results">
+                <h3>Hash Results for File:</h3>
+                <ul>
+                    {% for hash_type, hash_value in hash_results_file.items %}
+                        <li><strong>{{ hash_type }}:</strong> {{ hash_value }}</li>
+                    {% endfor %}
+                </ul>
+                <p><strong>File Name:</strong> {{ file_name }}</p>
+                {% if hash_match_file %}
+                    <p>{{ hash_match_file }}</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- URL Status Checker Section -->
+    <div class="tool-section">
+        <h2>URL Status Checker</h2>
+        <form method="post" enctype="multipart/form-data" action="{% url 'check_url' %}">
+            {% csrf_token %}
+            <input type="text" name="domain_name" placeholder="Enter URL">
+            <div>
+                <input type="file" name="file" accept=".txt">
+                <small>(Or upload a text file with URLs, one per line)</small>
+            </div>
+            <button type="submit">Check Status</button>
+        </form>
+
+        {% if url_status %}
+            <div class="results">
+                <h3>URL Status:</h3>
+                <p>{{ url_status }}</p>
+            </div>
+        {% elif url_statuses %}
+            <div class="results">
+                <h3>Bulk URL Status Results:</h3>
+                <ul>
+                    {% for status in url_statuses %}
+                        <li>{{ status }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+
+    {% if error %}
+        <div class="error">
+            <strong>Error:</strong> {{ error }}
+        </div>
     {% endif %}
-{% elif hash_results_file %}
-    <h2>Hash Results for File:</h2>
-    <ul>
-        {% for hash_type, hash_value in hash_results_file.items %}
-            <li>{{ hash_type }}: {{ hash_value }}</li>
-        {% endfor %}
-    </ul>
-    <p>File Name: {{ file_name }}</p>
-    {% if hash_match_file %}
-        <p>{{ hash_match_file }}</p>
-    {% endif %}
-{% elif error %}
-    <p>Error: {{ error }}</p>
-{% endif %}
-
-
 </body>
 </html>
