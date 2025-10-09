@@ -121,7 +121,11 @@ def file_report(file_hash):
     response = requests.get(url, headers=get_vt_headers())
     return response.json()
 
+
 def check_url_status(request: HttpRequest) -> HttpResponse:
+    """
+    Analyze URLs and files using VirusTotal API
+    """
     context: Dict[str, Any] = {}
     if request.method == "POST":
         domain = request.POST.get("domain_name", '').strip()
@@ -133,27 +137,86 @@ def check_url_status(request: HttpRequest) -> HttpResponse:
 
         # Domain analysis
         if domain:
-            vt_domain = domain_report(domain)
-            context['vt_domain'] = vt_domain
-
-            # Optionally, extract IP from domain and get IP report
             try:
-                ip = requests.get(f"https://dns.google/resolve?name={domain}").json()['Answer'][0]['data']
-                vt_ip = ip_address_report(ip)
-                context['vt_ip'] = vt_ip
-            except Exception:
-                context['vt_ip'] = None
+                vt_domain = domain_report(domain)
+                if 'data' in vt_domain:
+                    attributes = vt_domain['data']['attributes']
+                    context['domain_info'] = {
+                        'name': domain,
+                        'categories': attributes.get('categories', {}),
+                        'creation_date': attributes.get('creation_date', 'N/A'),
+                        'last_analysis_stats': attributes.get('last_analysis_stats', {}),
+                        'reputation': attributes.get('reputation', 0),
+                        'registrar': attributes.get('registrar', 'N/A'),
+                        'whois_date': attributes.get('whois_date', 'N/A'),
+                        'last_https_certificate': attributes.get('last_https_certificate', {})
+                    }
+
+                    # Get IP information
+                    try:
+                        ip = requests.get(f"https://dns.google/resolve?name={domain}").json()['Answer'][0]['data']
+                        vt_ip = ip_address_report(ip)
+                        if 'data' in vt_ip:
+                            ip_attributes = vt_ip['data']['attributes']
+                            context['ip_info'] = {
+                                'address': ip,
+                                'country': ip_attributes.get('country', 'N/A'),
+                                'asn': ip_attributes.get('asn', 'N/A'),
+                                'as_owner': ip_attributes.get('as_owner', 'N/A'),
+                                'last_analysis_stats': ip_attributes.get('last_analysis_stats', {}),
+                                'reputation': ip_attributes.get('reputation', 0)
+                            }
+                    except Exception as e:
+                        context['ip_error'] = str(e)
+
+            except Exception as e:
+                context['domain_error'] = str(e)
 
         # File analysis
         if file:
-            # Calculate file hash (SHA256)
-            sha256 = hashlib.sha256()
-            for chunk in file.chunks():
-                sha256.update(chunk)
-            file_hash = sha256.hexdigest()
-            context['file_hash'] = file_hash
+            try:
+                # Calculate multiple hashes
+                md5 = hashlib.md5()
+                sha1 = hashlib.sha1()
+                sha256 = hashlib.sha256()
 
-            vt_file = file_report(file_hash)
-            context['vt_file'] = vt_file
+                for chunk in file.chunks():
+                    md5.update(chunk)
+                    sha1.update(chunk)
+                    sha256.update(chunk)
+
+                file_hashes = {
+                    'md5': md5.hexdigest(),
+                    'sha1': sha1.hexdigest(),
+                    'sha256': sha256.hexdigest()
+                }
+
+                # Get file report from VirusTotal
+                vt_file = file_report(file_hashes['sha256'])
+                
+                if 'data' in vt_file:
+                    attributes = vt_file['data']['attributes']
+                    
+                    context['file_info'] = {
+                        'name': file.name,
+                        'size': file.size,
+                        'type': attributes.get('type_description', 'Unknown'),
+                        'magic': attributes.get('magic', 'N/A'),
+                        'hashes': file_hashes,
+                        'first_seen': attributes.get('first_submission_date', 'N/A'),
+                        'last_seen': attributes.get('last_submission_date', 'N/A'),
+                        'times_submitted': attributes.get('times_submitted', 0),
+                        'last_analysis_stats': attributes.get('last_analysis_stats', {}),
+                        'reputation': attributes.get('reputation', 0),
+                        'signatures': attributes.get('signatures', []),
+                        'sandbox_verdicts': attributes.get('sandbox_verdicts', {}),
+                        'sigma_analysis_stats': attributes.get('sigma_analysis_stats', {}),
+                        'crowdsourced_ids_stats': attributes.get('crowdsourced_ids_stats', {}),
+                        'threat_classification': attributes.get('popular_threat_classification', {})
+                    }
+
+            except Exception as e:
+                context['file_error'] = str(e)
+    print(context)
 
     return render(request, 'index.html', context)

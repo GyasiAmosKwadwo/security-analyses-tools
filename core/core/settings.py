@@ -126,3 +126,25 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+VT_API_KEY = os.getenv('VT_API_KEY')
+VT_API_TIMEOUT = 30
+MAX_UPLOAD_SIZE = 26214400
+
+CONTENT_TYPES = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'text/plain'
+]
+
+HASH_ALGORITHMS = {
+    'MD5': 'md5',
+    'SHA1': 'sha1',
+    'SHA256': 'sha256',
+    'SHA512': 'sha512'
+}
