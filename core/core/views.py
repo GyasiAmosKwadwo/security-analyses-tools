@@ -132,7 +132,7 @@ def check_url_status(request: HttpRequest) -> HttpResponse:
         file = request.FILES.get("file")
 
         if not domain and not file:
-            context['error'] = 'Please provide a domain name or upload a file.'
+            context['error'] = 'Please provide a URL or upload a file'
             return render(request, 'index.html', context)
 
         # Domain analysis
@@ -141,41 +141,40 @@ def check_url_status(request: HttpRequest) -> HttpResponse:
                 vt_domain = domain_report(domain)
                 if 'data' in vt_domain:
                     attributes = vt_domain['data']['attributes']
+                    stats = attributes.get('last_analysis_stats', {})
+                    
+                    # Calculate detection ratio and status
+                    total_scans = sum(stats.values())
+                    malicious = stats.get('malicious', 0)
+                    suspicious = stats.get('suspicious', 0)
+                    threat_score = (malicious + suspicious) / total_scans if total_scans > 0 else 0
+                    
+                    status = 'Clean'
+                    if threat_score > 0.5:
+                        status = 'Malicious'
+                    elif threat_score > 0.2:
+                        status = 'Suspicious'
+
                     context['domain_info'] = {
                         'name': domain,
                         'categories': attributes.get('categories', {}),
                         'creation_date': attributes.get('creation_date', 'N/A'),
-                        'last_analysis_stats': attributes.get('last_analysis_stats', {}),
+                        'last_analysis_stats': stats,
                         'reputation': attributes.get('reputation', 0),
                         'registrar': attributes.get('registrar', 'N/A'),
-                        'whois_date': attributes.get('whois_date', 'N/A'),
-                        'last_https_certificate': attributes.get('last_https_certificate', {})
+                        'status': status,
+                        'community_score': threat_score * 100,  # Convert to percentage
+                        'server': attributes.get('last_https_certificate', {}).get('issuer', {}).get('O', 'N/A'),
+                        'content_type': attributes.get('last_http_response_content_type', 'N/A'),
+                        'total_votes': attributes.get('total_votes', {}),
                     }
-
-                    # Get IP information
-                    try:
-                        ip = requests.get(f"https://dns.google/resolve?name={domain}").json()['Answer'][0]['data']
-                        vt_ip = ip_address_report(ip)
-                        if 'data' in vt_ip:
-                            ip_attributes = vt_ip['data']['attributes']
-                            context['ip_info'] = {
-                                'address': ip,
-                                'country': ip_attributes.get('country', 'N/A'),
-                                'asn': ip_attributes.get('asn', 'N/A'),
-                                'as_owner': ip_attributes.get('as_owner', 'N/A'),
-                                'last_analysis_stats': ip_attributes.get('last_analysis_stats', {}),
-                                'reputation': ip_attributes.get('reputation', 0)
-                            }
-                    except Exception as e:
-                        context['ip_error'] = str(e)
-
             except Exception as e:
-                context['domain_error'] = str(e)
+                context['domain_error'] = f'Domain analysis error: {str(e)}'
 
         # File analysis
         if file:
             try:
-                # Calculate multiple hashes
+                # Calculate file hashes
                 md5 = hashlib.md5()
                 sha1 = hashlib.sha1()
                 sha256 = hashlib.sha256()
@@ -196,7 +195,20 @@ def check_url_status(request: HttpRequest) -> HttpResponse:
                 
                 if 'data' in vt_file:
                     attributes = vt_file['data']['attributes']
+                    stats = attributes.get('last_analysis_stats', {})
                     
+                    # Calculate detection ratio and status
+                    total_scans = sum(stats.values())
+                    malicious = stats.get('malicious', 0)
+                    suspicious = stats.get('suspicious', 0)
+                    threat_score = (malicious + suspicious) / total_scans if total_scans > 0 else 0
+                    
+                    status = 'Clean'
+                    if threat_score > 0.5:
+                        status = 'Malicious'
+                    elif threat_score > 0.2:
+                        status = 'Suspicious'
+
                     context['file_info'] = {
                         'name': file.name,
                         'size': file.size,
@@ -206,17 +218,17 @@ def check_url_status(request: HttpRequest) -> HttpResponse:
                         'first_seen': attributes.get('first_submission_date', 'N/A'),
                         'last_seen': attributes.get('last_submission_date', 'N/A'),
                         'times_submitted': attributes.get('times_submitted', 0),
-                        'last_analysis_stats': attributes.get('last_analysis_stats', {}),
-                        'reputation': attributes.get('reputation', 0),
+                        'last_analysis_stats': stats,
+                        'status': status,
+                        'community_score': threat_score * 100,  # Convert to percentage
+                        'total_votes': attributes.get('total_votes', {}),
                         'signatures': attributes.get('signatures', []),
                         'sandbox_verdicts': attributes.get('sandbox_verdicts', {}),
-                        'sigma_analysis_stats': attributes.get('sigma_analysis_stats', {}),
-                        'crowdsourced_ids_stats': attributes.get('crowdsourced_ids_stats', {}),
-                        'threat_classification': attributes.get('popular_threat_classification', {})
+                        'type_tags': attributes.get('type_tags', []),
+                        'names': attributes.get('names', [])[:5]  # Show first 5 names seen
                     }
 
             except Exception as e:
-                context['file_error'] = str(e)
+                context['file_error'] = f'File analysis error: {str(e)}'
     print(context)
-
     return render(request, 'index.html', context)

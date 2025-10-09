@@ -164,122 +164,98 @@
         <button type="submit">Analyze</button>
     </form>
 
-    {% if domain_info %}
-    <div class="results">
-        <h3>Domain Analysis</h3>
-        <div class="result-section">
-            <h4>Domain Information</h4>
-            <p><strong>Domain:</strong> {{ domain_info.name }}</p>
-            <p><strong>Categories:</strong> 
-                {% for vendor, category in domain_info.categories.items %}
-                    {{ vendor }}: {{ category }}<br>
-                {% endfor %}
-            </p>
-            <p><strong>Creation Date:</strong> {{ domain_info.creation_date }}</p>
-            <p><strong>Registrar:</strong> {{ domain_info.registrar }}</p>
-            <p><strong>Reputation Score:</strong> {{ domain_info.reputation }}</p>
-        </div>
+    <!-- Replace the existing domain_info and file_info sections with: -->
 
-        <div class="result-section">
-            <h4>Analysis Statistics</h4>
-            <p><strong>Detection Ratio:</strong> 
-                {{ domain_info.last_analysis_stats.malicious }}/
-                {{ domain_info.last_analysis_stats.total }}</p>
-        </div>
-    </div>
-    {% endif %}
-
-    {% if ip_info %}
-    <div class="results">
-        <h3>IP Analysis</h3>
-        <div class="result-section">
-            <h4>IP Information</h4>
-            <p><strong>IP Address:</strong> {{ ip_info.address }}</p>
-            <p><strong>Country:</strong> {{ ip_info.country }}</p>
-            <p><strong>ASN:</strong> {{ ip_info.asn }}</p>
-            <p><strong>AS Owner:</strong> {{ ip_info.as_owner }}</p>
-            <p><strong>Reputation:</strong> {{ ip_info.reputation }}</p>
-        </div>
-
-        <div class="result-section">
-            <h4>Analysis Statistics</h4>
-            <p><strong>Detection Ratio:</strong> 
-                {{ ip_info.last_analysis_stats.malicious }}/
-                {{ ip_info.last_analysis_stats.total }}</p>
-        </div>
-    </div>
-    {% endif %}
-
-    {% if file_info %}
-    <div class="results">
-        <h3>File Analysis</h3>
-        <div class="result-section">
-            <h4>Basic Information</h4>
-            <p><strong>File Name:</strong> {{ file_info.name }}</p>
-            <p><strong>File Type:</strong> {{ file_info.type }}</p>
-            <p><strong>File Size:</strong> {{ file_info.size }} bytes</p>
-            <p><strong>Magic:</strong> {{ file_info.magic }}</p>
-        </div>
-
-        <div class="result-section">
-            <h4>File Hashes</h4>
-            <p><strong>MD5:</strong> {{ file_info.hashes.md5 }}</p>
-            <p><strong>SHA-1:</strong> {{ file_info.hashes.sha1 }}</p>
-            <p><strong>SHA-256:</strong> {{ file_info.hashes.sha256 }}</p>
-        </div>
-
-        <div class="result-section">
-            <h4>Threat Analysis</h4>
-            <p><strong>Detection Ratio:</strong> 
-                {{ file_info.last_analysis_stats.malicious }}/
-                {{ file_info.last_analysis_stats.total }}</p>
-            <p><strong>Reputation Score:</strong> {{ file_info.reputation }}</p>
-            <p><strong>First Seen:</strong> {{ file_info.first_seen }}</p>
-            <p><strong>Last Seen:</strong> {{ file_info.last_seen }}</p>
-            <p><strong>Times Submitted:</strong> {{ file_info.times_submitted }}</p>
-        </div>
-
-        {% if file_info.signatures %}
-        <div class="result-section">
-            <h4>Detected Signatures</h4>
-            <ul>
-            {% for signature in file_info.signatures %}
-                <li>{{ signature }}</li>
+{% if domain_info %}
+<div class="results">
+    <h3>Domain Analysis</h3>
+    <div class="result-section">
+        <h4>Domain Information</h4>
+        <p><strong>Domain:</strong> {{ domain_info.name }}</p>
+        <p><strong>Status:</strong> 
+            <span class="{% if domain_info.status == 'Malicious' %}detection-high
+                         {% elif domain_info.status == 'Suspicious' %}detection-medium
+                         {% else %}detection-low{% endif %}">
+                {{ domain_info.status }}
+            </span>
+        </p>
+        <p><strong>Community Score:</strong> {{ domain_info.community_score|floatformat:1 }}%</p>
+        <p><strong>Server:</strong> {{ domain_info.server }}</p>
+        <p><strong>Content Type:</strong> {{ domain_info.content_type }}</p>
+        <p><strong>Categories:</strong></p>
+        <ul>
+            {% for vendor, category in domain_info.categories.items %}
+                <li>{{ vendor }}: {{ category }}</li>
             {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
+        </ul>
+    </div>
 
-        {% if file_info.sandbox_verdicts %}
-        <div class="result-section">
-            <h4>Sandbox Analysis</h4>
-            {% for sandbox, verdict in file_info.sandbox_verdicts.items %}
-            <div>
-                <p><strong>{{ sandbox }}:</strong> {{ verdict.category }}</p>
-                <p>Confidence: {{ verdict.confidence }}</p>
-            </div>
+    <div class="result-section">
+        <h4>Analysis Statistics</h4>
+        <p><strong>Clean:</strong> {{ domain_info.last_analysis_stats.harmless|default:"0" }}</p>
+        <p><strong>Malicious:</strong> {{ domain_info.last_analysis_stats.malicious|default:"0" }}</p>
+        <p><strong>Suspicious:</strong> {{ domain_info.last_analysis_stats.suspicious|default:"0" }}</p>
+        <p><strong>Undetected:</strong> {{ domain_info.last_analysis_stats.undetected|default:"0" }}</p>
+        <p><strong>Community Votes:</strong> 
+            👍 {{ domain_info.total_votes.harmless|default:"0" }} 
+            👎 {{ domain_info.total_votes.malicious|default:"0" }}
+        </p>
+    </div>
+</div>
+{% endif %}
+
+{% if file_info %}
+<div class="results">
+    <h3>File Analysis</h3>
+    <div class="result-section">
+        <h4>Basic Information</h4>
+        <p><strong>File Name:</strong> {{ file_info.name }}</p>
+        <p><strong>Status:</strong> 
+            <span class="{% if file_info.status == 'Malicious' %}detection-high
+                         {% elif file_info.status == 'Suspicious' %}detection-medium
+                         {% else %}detection-low{% endif %}">
+                {{ file_info.status }}
+            </span>
+        </p>
+        <p><strong>Community Score:</strong> {{ file_info.community_score|floatformat:1 }}%</p>
+        <p><strong>File Type:</strong> {{ file_info.type }}</p>
+        <p><strong>Size:</strong> {{ file_info.size|filesizeformat }}</p>
+        <p><strong>Magic:</strong> {{ file_info.magic }}</p>
+        {% if file_info.names %}
+        <p><strong>Also known as:</strong></p>
+        <ul>
+            {% for name in file_info.names %}
+                <li>{{ name }}</li>
             {% endfor %}
-        </div>
+        </ul>
         {% endif %}
     </div>
+
+    <div class="result-section">
+        <h4>Analysis Statistics</h4>
+        <p><strong>Clean:</strong> {{ file_info.last_analysis_stats.harmless|default:"0" }}</p>
+        <p><strong>Malicious:</strong> {{ file_info.last_analysis_stats.malicious|default:"0" }}</p>
+        <p><strong>Suspicious:</strong> {{ file_info.last_analysis_stats.suspicious|default:"0" }}</p>
+        <p><strong>Undetected:</strong> {{ file_info.last_analysis_stats.undetected|default:"0" }}</p>
+        <p><strong>Community Votes:</strong> 
+            👍 {{ file_info.total_votes.harmless|default:"0" }} 
+            👎 {{ file_info.total_votes.malicious|default:"0" }}
+        </p>
+    </div>
+
+    {% if file_info.type_tags %}
+    <div class="result-section">
+        <h4>File Characteristics</h4>
+        <p>{{ file_info.type_tags|join:", " }}</p>
+    </div>
     {% endif %}
+</div>
+{% endif %}
 
     {% if domain_error %}
         <div class="error">
             <strong>Domain Analysis Error:</strong> {{ domain_error }}
-        </div>
-    {% endif %}
-
-    {% if ip_error %}
-        <div class="error">
-            <strong>IP Analysis Error:</strong> {{ ip_error }}
-        </div>
-    {% endif %}
-
-    {% if file_error %}
-        <div class="error">
-            <strong>File Analysis Error:</strong> {{ file_error }}
-        </div>
+    
     {% endif %}
 </div>
     </div>
