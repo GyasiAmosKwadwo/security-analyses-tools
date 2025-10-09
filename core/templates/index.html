@@ -3,60 +3,285 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Security Analysis Tools</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .tool-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .results {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .error {
+            color: red;
+            padding: 10px;
+            background-color: #ffe6e6;
+            border-radius: 4px;
+        }
+
+ 
+    .result-section {
+        margin: 15px 0;
+        padding: 15px;
+        border-left: 3px solid #4CAF50;
+        background-color: #ffffff;
+    }
+
+    .result-section h4 {
+        color: #2c3e50;
+        margin-top: 0;
+    }
+
+    .detection-high {
+        color: #ff4444;
+    }
+
+    .detection-medium {
+        color: #ffbb33;
+    }
+
+    .detection-low {
+        color: #00C851;
+    }
+    </style>
 </head>
 <body>
-    <form method="post" action="{% url 'whois' %}">
-    {% csrf_token %}
-    <input type="text" name="domain_name" placeholder="Enter domain name">
-    <button type="submit">Lookup</button>
-</form>
+    <!-- WHOIS Lookup Section -->
+    <div class="tool-section">
+        <h2>WHOIS Lookup</h2>
+        <form method="post" action="{% url 'whois' %}">
+            {% csrf_token %}
+            <input type="text" name="domain_name" placeholder="Enter domain name" required>
+            <button type="submit">Lookup</button>
+        </form>
 
-{% if response %}
-    <h2>WHOIS Response:</h2>
-    <ul>
-        {% for key, value in response %}
-            <li>{{ key }}: {{ value }}</li>
-        {% endfor %}
-    </ul>
-{% elif error %}
-    <p>Error: {{ error }}</p>
-{% endif %}
+        {% if response %}
+            <div class="results">
+                <h3>WHOIS Response:</h3>
+                <ul>
+                    {% for key, value in response %}
+                        <li><strong>{{ key }}:</strong> {{ value }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
 
-<!-- Hashing Form -->
-<form method="post" enctype="multipart/form-data" action ="{% url 'hash' %}">
-    {% csrf_token %}
-    <textarea name="input_string" placeholder="Enter string to hash"></textarea>
-    <input type="file" name="file">
-    <button type="submit">Hash and Verify</button>
-</form>
+    <!-- Hash Generator Section -->
+    <div class="tool-section">
+        <h2>Hash Generator</h2>
+        <form method="post" enctype="multipart/form-data" action="{% url 'hash' %}">
+            {% csrf_token %}
+            <div>
+                <textarea name="input_string" placeholder="Enter string to hash" rows="4"></textarea>
+            </div>
+            <div>
+                <input type="file" name="file">
+            </div>
+            <div>
+                <input type="text" name="given_hash" placeholder="Enter hash to verify (optional)">
+                <select name="hash_type">
+                    <option value="MD5">MD5</option>
+                    <option value="SHA1">SHA1</option>
+                    <option value="SHA256">SHA256</option>
+                    <option value="SHA3_256">SHA3-256</option>
+                    <option value="BLAKE2B">BLAKE2b</option>
+                </select>
+            </div>
+            <button type="submit">Hash and Verify</button>
+        </form>
 
-{% if hash_results %}
-    <h2>Hash Results for String:</h2>
-    <ul>
-        {% for hash_type, hash_value in hash_results.items %}
-            <li>{{ hash_type }}: {{ hash_value }}</li>
-        {% endfor %}
-    </ul>
-    <p>Input String: {{ input_string }}</p>
-    {% if hash_match %}
-        <p>{{ hash_match }}</p>
+        {% if hash_results %}
+            <div class="results">
+                <h3>Hash Results for String:</h3>
+                <ul>
+                    {% for hash_type, hash_value in hash_results.items %}
+                        <li><strong>{{ hash_type }}:</strong> {{ hash_value }}</li>
+                    {% endfor %}
+                </ul>
+                <p><strong>Input String:</strong> {{ input_string }}</p>
+                {% if hash_match %}
+                    <p>{{ hash_match }}</p>
+                {% endif %}
+            </div>
+        {% elif hash_results_file %}
+            <div class="results">
+                <h3>Hash Results for File:</h3>
+                <ul>
+                    {% for hash_type, hash_value in hash_results_file.items %}
+                        <li><strong>{{ hash_type }}:</strong> {{ hash_value }}</li>
+                    {% endfor %}
+                </ul>
+                <p><strong>File Name:</strong> {{ file_name }}</p>
+                {% if hash_match_file %}
+                    <p>{{ hash_match_file }}</p>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- URL Status Checker Section -->
+    <!-- ...existing code... -->
+
+<div class="tool-section">
+    <h2>URL & File Analysis</h2>
+    <form method="post" enctype="multipart/form-data" action="{% url 'check_url' %}">
+        {% csrf_token %}
+        <input type="text" name="domain_name" placeholder="Enter URL">
+        <div>
+            <input type="file" name="file" accept=".txt,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.pdf">
+            <small>(Supported files: TXT, DOC, DOCX, PPT, PPTX, XLS, XLSX, PDF)</small>
+        </div>
+        <button type="submit">Analyze</button>
+    </form>
+
+    {% if domain_info %}
+    <div class="results">
+        <h3>Domain Analysis</h3>
+        <div class="result-section">
+            <h4>Domain Information</h4>
+            <p><strong>Domain:</strong> {{ domain_info.name }}</p>
+            <p><strong>Categories:</strong> 
+                {% for vendor, category in domain_info.categories.items %}
+                    {{ vendor }}: {{ category }}<br>
+                {% endfor %}
+            </p>
+            <p><strong>Creation Date:</strong> {{ domain_info.creation_date }}</p>
+            <p><strong>Registrar:</strong> {{ domain_info.registrar }}</p>
+            <p><strong>Reputation Score:</strong> {{ domain_info.reputation }}</p>
+        </div>
+
+        <div class="result-section">
+            <h4>Analysis Statistics</h4>
+            <p><strong>Detection Ratio:</strong> 
+                {{ domain_info.last_analysis_stats.malicious }}/
+                {{ domain_info.last_analysis_stats.total }}</p>
+        </div>
+    </div>
     {% endif %}
-{% elif hash_results_file %}
-    <h2>Hash Results for File:</h2>
-    <ul>
-        {% for hash_type, hash_value in hash_results_file.items %}
-            <li>{{ hash_type }}: {{ hash_value }}</li>
-        {% endfor %}
-    </ul>
-    <p>File Name: {{ file_name }}</p>
-    {% if hash_match_file %}
-        <p>{{ hash_match_file }}</p>
+
+    {% if ip_info %}
+    <div class="results">
+        <h3>IP Analysis</h3>
+        <div class="result-section">
+            <h4>IP Information</h4>
+            <p><strong>IP Address:</strong> {{ ip_info.address }}</p>
+            <p><strong>Country:</strong> {{ ip_info.country }}</p>
+            <p><strong>ASN:</strong> {{ ip_info.asn }}</p>
+            <p><strong>AS Owner:</strong> {{ ip_info.as_owner }}</p>
+            <p><strong>Reputation:</strong> {{ ip_info.reputation }}</p>
+        </div>
+
+        <div class="result-section">
+            <h4>Analysis Statistics</h4>
+            <p><strong>Detection Ratio:</strong> 
+                {{ ip_info.last_analysis_stats.malicious }}/
+                {{ ip_info.last_analysis_stats.total }}</p>
+        </div>
+    </div>
     {% endif %}
-{% elif error %}
-    <p>Error: {{ error }}</p>
-{% endif %}
 
+    {% if file_info %}
+    <div class="results">
+        <h3>File Analysis</h3>
+        <div class="result-section">
+            <h4>Basic Information</h4>
+            <p><strong>File Name:</strong> {{ file_info.name }}</p>
+            <p><strong>File Type:</strong> {{ file_info.type }}</p>
+            <p><strong>File Size:</strong> {{ file_info.size }} bytes</p>
+            <p><strong>Magic:</strong> {{ file_info.magic }}</p>
+        </div>
 
+        <div class="result-section">
+            <h4>File Hashes</h4>
+            <p><strong>MD5:</strong> {{ file_info.hashes.md5 }}</p>
+            <p><strong>SHA-1:</strong> {{ file_info.hashes.sha1 }}</p>
+            <p><strong>SHA-256:</strong> {{ file_info.hashes.sha256 }}</p>
+        </div>
+
+        <div class="result-section">
+            <h4>Threat Analysis</h4>
+            <p><strong>Detection Ratio:</strong> 
+                {{ file_info.last_analysis_stats.malicious }}/
+                {{ file_info.last_analysis_stats.total }}</p>
+            <p><strong>Reputation Score:</strong> {{ file_info.reputation }}</p>
+            <p><strong>First Seen:</strong> {{ file_info.first_seen }}</p>
+            <p><strong>Last Seen:</strong> {{ file_info.last_seen }}</p>
+            <p><strong>Times Submitted:</strong> {{ file_info.times_submitted }}</p>
+        </div>
+
+        {% if file_info.signatures %}
+        <div class="result-section">
+            <h4>Detected Signatures</h4>
+            <ul>
+            {% for signature in file_info.signatures %}
+                <li>{{ signature }}</li>
+            {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        {% if file_info.sandbox_verdicts %}
+        <div class="result-section">
+            <h4>Sandbox Analysis</h4>
+            {% for sandbox, verdict in file_info.sandbox_verdicts.items %}
+            <div>
+                <p><strong>{{ sandbox }}:</strong> {{ verdict.category }}</p>
+                <p>Confidence: {{ verdict.confidence }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if domain_error %}
+        <div class="error">
+            <strong>Domain Analysis Error:</strong> {{ domain_error }}
+        </div>
+    {% endif %}
+
+    {% if ip_error %}
+        <div class="error">
+            <strong>IP Analysis Error:</strong> {{ ip_error }}
+        </div>
+    {% endif %}
+
+    {% if file_error %}
+        <div class="error">
+            <strong>File Analysis Error:</strong> {{ file_error }}
+        </div>
+    {% endif %}
+</div>
+    </div>
 </body>
 </html>

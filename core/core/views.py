@@ -1,78 +1,222 @@
+from typing import Dict, Any
 import whois
 import hashlib
+import requests
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
-from django.core.files.uploadedfile import UploadedFile
+from typing import Dict, Any
+from django.http import HttpRequest, HttpResponse
+from django.shortcuts import render
+import os
 
 
-def get_whois_info(request):
-    context = {}
+def get_whois_info(request: HttpRequest) -> HttpResponse:
+    """
+    Get WHOIS information for a given domain name.
+    """
+    context: Dict[str, Any] = {}
     if request.method == 'POST':
-        domain_name = request.POST.get('domain_name')
+        domain_name = request.POST.get('domain_name', '').strip()
+        if not domain_name:
+            context['error'] = 'Please provide a domain name'
+            return render(request, 'index.html', context)
+        
         try:
             w = whois.whois(domain_name)
             context['response'] = w.items()
         except Exception as e:
-            context['error'] = str(e)
+            context['error'] = f'WHOIS lookup failed: {str(e)}'
+    
     return render(request, 'index.html', context)
 
-
-#Hashing Function
-def hash_string(request):
-    context = {}
+def hash_string(request: HttpRequest) -> HttpResponse:
+    """
+    Generate hash values for input string or file using multiple algorithms.
+    """
+    context: Dict[str, Any] = {}
     if request.method == 'POST':
         input_string = request.POST.get('input_string', '').strip()
         uploaded_file = request.FILES.get('file')
         given_hash = request.POST.get('given_hash', '').strip()
-        hash_type = request.POST.get('hash_type', '').strip()
+        hash_type = request.POST.get('hash_type', '').strip().upper()
 
         if not input_string and not uploaded_file:
             context['error'] = 'Please provide a string or upload a file to hash'
             return render(request, 'index.html', context)
 
         try:
+            hash_algorithms = {
+                'MD5': hashlib.md5,
+                'SHA1': hashlib.sha1,
+                'SHA256': hashlib.sha256,
+                'SHA3_256': hashlib.sha3_256,
+                'BLAKE2B': hashlib.blake2b
+            }
+
             if input_string:
                 hash_results = {
-                    'MD5': hashlib.md5(input_string.encode()).hexdigest(),
-                    'SHA1': hashlib.sha1(input_string.encode()).hexdigest(),
-                    'SHA256': hashlib.sha256(input_string.encode()).hexdigest(),
-                    'SHA3_256': hashlib.sha3_256(input_string.encode()).hexdigest(),
-                    'BLAKE2s': hashlib.blake2s(input_string.encode()).hexdigest()
+                    name: algo(input_string.encode()).hexdigest()
+                    for name, algo in hash_algorithms.items()
                 }
-                context['hash_results'] = hash_results
-                context['input_string'] = input_string
+                context.update({
+                    'hash_results': hash_results,
+                    'input_string': input_string
+                })
 
-                if given_hash and hash_type:
-                    calculated_hash = hash_results.get(hash_type.upper())
-                    if calculated_hash == given_hash:
-                        context['hash_match'] = f'The given {hash_type} hash matches the calculated hash.'
-                    else:
-                        context['hash_match'] = f'The given {hash_type} hash does not match the calculated hash.'
+                if given_hash and hash_type in hash_algorithms:
+                    calculated_hash = hash_results.get(hash_type)
+                    context['hash_match'] = (
+                        f'The given {hash_type} hash '
+                        f'{"matches" if calculated_hash == given_hash else "does not match"} '
+                        'the calculated hash.'
+                    )
 
             elif uploaded_file:
-                hash_results_file = {
-                    'MD5': hashlib.md5(),
-                    'SHA1': hashlib.sha1(),
-                    'SHA256': hashlib.sha256(),
-                    'SHA3_256': hashlib.sha3_256(),
-                    'BLAKE2s': hashlib.blake2s()
+                hash_objects = {
+                    name: algo() for name, algo in hash_algorithms.items()
                 }
 
                 for chunk in uploaded_file.chunks():
-                    for hash_object in hash_results_file.values():
+                    for hash_object in hash_objects.values():
                         hash_object.update(chunk)
 
-                hash_results_file = {k: v.hexdigest() for k, v in hash_results_file.items()}
-                context['hash_results_file'] = hash_results_file
-                context['file_name'] = uploaded_file.name
-
-                if given_hash and hash_type:
-                    calculated_hash = hash_results_file.get(hash_type.upper())
-                    if calculated_hash == given_hash:
-                        context['hash_match_file'] = f'The given {hash_type} hash matches the calculated hash for the file.'
-                    else:
-                        context['hash_match_file'] = f'The given {hash_type} hash does not match the calculated hash for the file.'
+                hash_results = {
+                    name: obj.hexdigest() 
+                    for name, obj in hash_objects.items()
+                }
+                context.update({
+                    'hash_results_file': hash_results,
+                    'file_name': uploaded_file.name
+                })
 
         except Exception as e:
             context['error'] = f'Error generating hashes: {str(e)}'
+
+    return render(request, 'index.html', context)
+
+
+
+
+API_KEY = os.getenv('VT_API_KEY')
+
+def get_vt_headers():
+    return {
+        "accept": "application/json",
+        "x-apikey": API_KEY
+    }
+
+def domain_report(domain):
+    domain = domain.replace("http://", "").replace("https://", "").replace("www.", "")
+    url = f"https://www.virustotal.com/api/v3/domains/{domain}"
+    response = requests.get(url, headers=get_vt_headers())
+    return response.json()
+
+def ip_address_report(ip):
+    url = f"https://www.virustotal.com/api/v3/ip_addresses/{ip}"
+    response = requests.get(url, headers=get_vt_headers())
+    return response.json()
+
+def file_report(file_hash):
+    url = f"https://www.virustotal.com/api/v3/files/{file_hash}"
+    response = requests.get(url, headers=get_vt_headers())
+    return response.json()
+
+
+def check_url_status(request: HttpRequest) -> HttpResponse:
+    """
+    Analyze URLs and files using VirusTotal API
+    """
+    context: Dict[str, Any] = {}
+    if request.method == "POST":
+        domain = request.POST.get("domain_name", '').strip()
+        file = request.FILES.get("file")
+
+        if not domain and not file:
+            context['error'] = 'Please provide a domain name or upload a file.'
+            return render(request, 'index.html', context)
+
+        # Domain analysis
+        if domain:
+            try:
+                vt_domain = domain_report(domain)
+                if 'data' in vt_domain:
+                    attributes = vt_domain['data']['attributes']
+                    context['domain_info'] = {
+                        'name': domain,
+                        'categories': attributes.get('categories', {}),
+                        'creation_date': attributes.get('creation_date', 'N/A'),
+                        'last_analysis_stats': attributes.get('last_analysis_stats', {}),
+                        'reputation': attributes.get('reputation', 0),
+                        'registrar': attributes.get('registrar', 'N/A'),
+                        'whois_date': attributes.get('whois_date', 'N/A'),
+                        'last_https_certificate': attributes.get('last_https_certificate', {})
+                    }
+
+                    # Get IP information
+                    try:
+                        ip = requests.get(f"https://dns.google/resolve?name={domain}").json()['Answer'][0]['data']
+                        vt_ip = ip_address_report(ip)
+                        if 'data' in vt_ip:
+                            ip_attributes = vt_ip['data']['attributes']
+                            context['ip_info'] = {
+                                'address': ip,
+                                'country': ip_attributes.get('country', 'N/A'),
+                                'asn': ip_attributes.get('asn', 'N/A'),
+                                'as_owner': ip_attributes.get('as_owner', 'N/A'),
+                                'last_analysis_stats': ip_attributes.get('last_analysis_stats', {}),
+                                'reputation': ip_attributes.get('reputation', 0)
+                            }
+                    except Exception as e:
+                        context['ip_error'] = str(e)
+
+            except Exception as e:
+                context['domain_error'] = str(e)
+
+        # File analysis
+        if file:
+            try:
+                # Calculate multiple hashes
+                md5 = hashlib.md5()
+                sha1 = hashlib.sha1()
+                sha256 = hashlib.sha256()
+
+                for chunk in file.chunks():
+                    md5.update(chunk)
+                    sha1.update(chunk)
+                    sha256.update(chunk)
+
+                file_hashes = {
+                    'md5': md5.hexdigest(),
+                    'sha1': sha1.hexdigest(),
+                    'sha256': sha256.hexdigest()
+                }
+
+                # Get file report from VirusTotal
+                vt_file = file_report(file_hashes['sha256'])
+                
+                if 'data' in vt_file:
+                    attributes = vt_file['data']['attributes']
+                    
+                    context['file_info'] = {
+                        'name': file.name,
+                        'size': file.size,
+                        'type': attributes.get('type_description', 'Unknown'),
+                        'magic': attributes.get('magic', 'N/A'),
+                        'hashes': file_hashes,
+                        'first_seen': attributes.get('first_submission_date', 'N/A'),
+                        'last_seen': attributes.get('last_submission_date', 'N/A'),
+                        'times_submitted': attributes.get('times_submitted', 0),
+                        'last_analysis_stats': attributes.get('last_analysis_stats', {}),
+                        'reputation': attributes.get('reputation', 0),
+                        'signatures': attributes.get('signatures', []),
+                        'sandbox_verdicts': attributes.get('sandbox_verdicts', {}),
+                        'sigma_analysis_stats': attributes.get('sigma_analysis_stats', {}),
+                        'crowdsourced_ids_stats': attributes.get('crowdsourced_ids_stats', {}),
+                        'threat_classification': attributes.get('popular_threat_classification', {})
+                    }
+
+            except Exception as e:
+                context['file_error'] = str(e)
+    print(context)
 
     return render(request, 'index.html', context)

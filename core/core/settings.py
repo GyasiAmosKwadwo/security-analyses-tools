@@ -12,21 +12,26 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+URL_TIMEOUT = 5  # Timeout for URL status checks in seconds
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-be5l&syfgotl9h&q%@$g=26r-7!jibuzm(psahn#o@h6^hip(n'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-be5l&syfgotl9h&q%@$g=26r-7!jibuzm(psahn#o@h6^hip(n')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', '*').split(',')
 
 
 # Application definition
@@ -121,3 +126,25 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+VT_API_KEY = os.getenv('VT_API_KEY')
+VT_API_TIMEOUT = 30
+MAX_UPLOAD_SIZE = 26214400
+
+CONTENT_TYPES = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'text/plain'
+]
+
+HASH_ALGORITHMS = {
+    'MD5': 'md5',
+    'SHA1': 'sha1',
+    'SHA256': 'sha256',
+    'SHA512': 'sha512'
+}
