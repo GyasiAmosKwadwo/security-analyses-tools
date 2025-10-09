@@ -4,284 +4,455 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Security Analysis Tools</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #2ecc71;
+            --warning-color: #f1c40f;
+            --danger-color: #e74c3c;
+            --background-color: #ecf0f1;
+            --card-color: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--background-color);
+            color: var(--primary-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
-        .tool-section {
-            margin-bottom: 30px;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        form {
-            margin-bottom: 20px;
-        }
-        input[type="text"], textarea {
-            width: 100%;
-            padding: 8px;
-            margin: 8px 0;
-        }
-        button {
-            background-color: #4CAF50;
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
             color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
-        button:hover {
-            background-color: #45a049;
+
+        .tool-section {
+            background: var(--card-color);
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        .results {
-            background-color: #f9f9f9;
-            padding: 15px;
-            border-radius: 4px;
+
+        .tool-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
         }
-        .error {
-            color: red;
+
+        .tool-header i {
+            font-size: 24px;
+            margin-right: 15px;
+            color: var(--secondary-color);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="file"],
+        textarea,
+        select {
+            width: 100%;
             padding: 10px;
-            background-color: #ffe6e6;
-            border-radius: 4px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
         }
 
- 
-    .result-section {
-        margin: 15px 0;
-        padding: 15px;
-        border-left: 3px solid #4CAF50;
-        background-color: #ffffff;
-    }
+        input[type="file"] {
+            padding: 8px;
+            border: 2px dashed #ddd;
+        }
 
-    .result-section h4 {
-        color: #2c3e50;
-        margin-top: 0;
-    }
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-    .detection-high {
-        color: #ff4444;
-    }
+        button:hover {
+            background-color: #2980b9;
+        }
 
-    .detection-medium {
-        color: #ffbb33;
-    }
+        .results {
+            margin-top: 20px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--secondary-color);
+        }
 
-    .detection-low {
-        color: #00C851;
-    }
+        .result-section {
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .detection-high {
+            color: var(--danger-color);
+            font-weight: bold;
+        }
+
+        .detection-medium {
+            color: var(--warning-color);
+            font-weight: bold;
+        }
+
+        .detection-low {
+            color: var(--success-color);
+            font-weight: bold;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .error {
+            background-color: #fee;
+            color: var(--danger-color);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid var(--danger-color);
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .tool-section { padding: 15px; }
+            .stats-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
-    <!-- WHOIS Lookup Section -->
-    <div class="tool-section">
-        <h2>WHOIS Lookup</h2>
-        <form method="post" action="{% url 'whois' %}">
-            {% csrf_token %}
-            <input type="text" name="domain_name" placeholder="Enter domain name" required>
-            <button type="submit">Lookup</button>
-        </form>
-
-        {% if response %}
-            <div class="results">
-                <h3>WHOIS Response:</h3>
-                <ul>
-                    {% for key, value in response %}
-                        <li><strong>{{ key }}:</strong> {{ value }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        {% endif %}
+    <div class="header">
+        <h1><i class="fas fa-shield-alt"></i> Security Analysis Tools</h1>
+        <p>Advanced security analysis and threat detection platform</p>
     </div>
 
-    <!-- Hash Generator Section -->
-    <div class="tool-section">
-        <h2>Hash Generator</h2>
-        <form method="post" enctype="multipart/form-data" action="{% url 'hash' %}">
-            {% csrf_token %}
-            <div>
-                <textarea name="input_string" placeholder="Enter string to hash" rows="4"></textarea>
+    <div class="container">
+        <!-- WHOIS Lookup Section -->
+        <div class="tool-section">
+            <div class="tool-header">
+                <i class="fas fa-search"></i>
+                <h2>WHOIS Lookup</h2>
             </div>
-            <div>
-                <input type="file" name="file">
-            </div>
-            <div>
-                <input type="text" name="given_hash" placeholder="Enter hash to verify (optional)">
-                <select name="hash_type">
-                    <option value="MD5">MD5</option>
-                    <option value="SHA1">SHA1</option>
-                    <option value="SHA256">SHA256</option>
-                    <option value="SHA3_256">SHA3-256</option>
-                    <option value="BLAKE2B">BLAKE2b</option>
-                </select>
-            </div>
-            <button type="submit">Hash and Verify</button>
-        </form>
+            <form method="post" action="{% url 'whois' %}">
+                {% csrf_token %}
+                <div class="input-group">
+                    <label for="domain_name">Domain Name</label>
+                    <input type="text" id="domain_name" name="domain_name" 
+                           placeholder="Enter domain name (e.g., example.com)" required>
+                </div>
+                <button type="submit"><i class="fas fa-search"></i> Lookup</button>
+            </form>
 
-        {% if hash_results %}
-            <div class="results">
-                <h3>Hash Results for String:</h3>
-                <ul>
-                    {% for hash_type, hash_value in hash_results.items %}
-                        <li><strong>{{ hash_type }}:</strong> {{ hash_value }}</li>
-                    {% endfor %}
-                </ul>
-                <p><strong>Input String:</strong> {{ input_string }}</p>
-                {% if hash_match %}
-                    <p>{{ hash_match }}</p>
-                {% endif %}
+            {% if response %}
+                <div class="results">
+                    <h3>WHOIS Information</h3>
+                    <div class="result-section">
+                        {% for key, value in response %}
+                            <p><strong>{{ key }}:</strong> {{ value }}</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Hash Generator Section -->
+        <div class="tool-section">
+            <div class="tool-header">
+                <i class="fas fa-hashtag"></i>
+                <h2>Hash Generator</h2>
             </div>
-        {% elif hash_results_file %}
-            <div class="results">
-                <h3>Hash Results for File:</h3>
-                <ul>
-                    {% for hash_type, hash_value in hash_results_file.items %}
-                        <li><strong>{{ hash_type }}:</strong> {{ hash_value }}</li>
-                    {% endfor %}
-                </ul>
-                <p><strong>File Name:</strong> {{ file_name }}</p>
-                {% if hash_match_file %}
-                    <p>{{ hash_match_file }}</p>
-                {% endif %}
+            <form method="post" enctype="multipart/form-data" action="{% url 'hash' %}">
+                {% csrf_token %}
+                <div class="input-group">
+                    <label for="input_string">Text to Hash</label>
+                    <textarea id="input_string" name="input_string" 
+                              placeholder="Enter text to hash" rows="4"></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="file">Or Upload a File</label>
+                    <input type="file" id="file" name="file">
+                </div>
+                <div class="input-group">
+                    <label for="given_hash">Verify Hash (Optional)</label>
+                    <input type="text" id="given_hash" name="given_hash" 
+                           placeholder="Enter hash to verify">
+                    <select name="hash_type" id="hash_type">
+                        <option value="MD5">MD5</option>
+                        <option value="SHA1">SHA1</option>
+                        <option value="SHA256">SHA256</option>
+                        <option value="SHA3_256">SHA3-256</option>
+                        <option value="BLAKE2B">BLAKE2b</option>
+                    </select>
+                </div>
+                <button type="submit"><i class="fas fa-calculator"></i> Generate Hash</button>
+            </form>
+
+            {% if hash_results %}
+                <div class="results">
+                    <h3>Hash Results for String:</h3>
+                    <div class="result-section">
+                        {% for hash_type, hash_value in hash_results.items %}
+                            <p class="hash-value"><strong>{{ hash_type }}:</strong> 
+                               <code>{{ hash_value }}</code></p>
+                        {% endfor %}
+                        <p><strong>Input String:</strong> {{ input_string }}</p>
+                        {% if hash_match %}
+                            <p>{{ hash_match }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% elif hash_results_file %}
+                <div class="results">
+                    <h3>Hash Results for File:</h3>
+                    <div class="result-section">
+                        {% for hash_type, hash_value in hash_results_file.items %}
+                            <p class="hash-value"><strong>{{ hash_type }}:</strong> 
+                               <code>{{ hash_value }}</code></p>
+                        {% endfor %}
+                        <p><strong>File Name:</strong> {{ file_name }}</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- URL & File Analysis Section -->
+        <div class="tool-section">
+            <div class="tool-header">
+                <i class="fas fa-shield-alt"></i>
+                <h2>URL & File Analysis</h2>
             </div>
-        {% endif %}
+            <form method="post" enctype="multipart/form-data" action="{% url 'check_url' %}">
+                {% csrf_token %}
+                <div class="input-group">
+                    <label for="url">URL to Analyze</label>
+                    <input type="text" id="url" name="domain_name" 
+                           placeholder="Enter URL to analyze">
+                </div>
+                <div class="input-group">
+                    <label for="analysis_file">Or Upload File for Analysis</label>
+                    <input type="file" id="analysis_file" name="file" 
+                           accept=".txt,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.pdf">
+                    <small>Supported: PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, TXT</small>
+                </div>
+                <button type="submit"><i class="fas fa-microscope"></i> Analyze</button>
+            </form>
+
+            {% if domain_info %}
+                <div class="results">
+                    <h3>Domain Analysis Results</h3>
+                    <div class="result-section">
+                        <h4>Domain Information</h4>
+                        <p><strong>Domain:</strong> {{ domain_info.name }}</p>
+                        <p><strong>Status:</strong> 
+                            <span class="{% if domain_info.status == 'Malicious' %}detection-high
+                                     {% elif domain_info.status == 'Suspicious' %}detection-medium
+                                     {% else %}detection-low{% endif %}">
+                                {{ domain_info.status }}
+                            </span>
+                        </p>
+                        <p><strong>Community Score:</strong> {{ domain_info.community_score|floatformat:1 }}%</p>
+                        <p><strong>Server:</strong> {{ domain_info.server }}</p>
+                        <p><strong>Content Type:</strong> {{ domain_info.content_type }}</p>
+                    </div>
+
+                    <div class="result-section">
+                        <h4>Categories</h4>
+                        <div class="stats-grid">
+                            {% for vendor, category in domain_info.categories.items %}
+                                <div class="stat-item">
+                                    <strong>{{ vendor }}:</strong> {{ category }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="result-section">
+                        <h4>Analysis Statistics</h4>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <strong>Clean:</strong> 
+                                {{ domain_info.last_analysis_stats.harmless|default:"0" }}
+                            </div>
+                            <div class="stat-item">
+                                <strong>Malicious:</strong> 
+                                {{ domain_info.last_analysis_stats.malicious|default:"0" }}
+                            </div>
+                            <div class="stat-item">
+                                <strong>Suspicious:</strong> 
+                                {{ domain_info.last_analysis_stats.suspicious|default:"0" }}
+                            </div>
+                            <div class="stat-item">
+                                <strong>Undetected:</strong> 
+                                {{ domain_info.last_analysis_stats.undetected|default:"0" }}
+                            </div>
+                        </div>
+                        <p class="stat-item">
+                            <strong>Community Votes:</strong> 
+                            👍 {{ domain_info.total_votes.harmless|default:"0" }} 
+                            👎 {{ domain_info.total_votes.malicious|default:"0" }}
+                        </p>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if file_info %}
+                <div class="results">
+                    <h3>File Analysis Results</h3>
+                    <div class="result-section">
+                        <h4>Basic Information</h4>
+                        <p><strong>File Name:</strong> {{ file_info.name }}</p>
+                        <p><strong>Status:</strong> 
+                            <span class="{% if file_info.status == 'Malicious' %}detection-high
+                                     {% elif file_info.status == 'Suspicious' %}detection-medium
+                                     {% else %}detection-low{% endif %}">
+                                {{ file_info.status }}
+                            </span>
+                        </p>
+                        <p><strong>Community Score:</strong> {{ file_info.community_score|floatformat:1 }}%</p>
+                        <p><strong>File Type:</strong> {{ file_info.type }}</p>
+                        <p><strong>Size:</strong> {{ file_info.size|filesizeformat }}</p>
+                        <p><strong>Magic:</strong> {{ file_info.magic }}</p>
+                    </div>
+
+                    <div class="result-section">
+                        <h4>Analysis Statistics</h4>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <strong>Clean:</strong> 
+                                {{ file_info.last_analysis_stats.harmless|default:"0" }}
+                            </div>
+                            <div class="stat-item">
+                                <strong>Malicious:</strong> 
+                                {{ file_info.last_analysis_stats.malicious|default:"0" }}
+                            </div>
+                            <div class="stat-item">
+                                <strong>Suspicious:</strong> 
+                                {{ file_info.last_analysis_stats.suspicious|default:"0" }}
+                            </div>
+                            <div class="stat-item">
+                                <strong>Undetected:</strong> 
+                                {{ file_info.last_analysis_stats.undetected|default:"0" }}
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if file_info.names %}
+                        <div class="result-section">
+                            <h4>Also Known As</h4>
+                            <ul>
+                                {% for name in file_info.names %}
+                                    <li>{{ name }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    {% if file_info.type_tags %}
+                        <div class="result-section">
+                            <h4>File Characteristics</h4>
+                            <div class="stats-grid">
+                                {% for tag in file_info.type_tags %}
+                                    <div class="stat-item">{{ tag }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            {% if domain_error %}
+                <div class="error">
+                    <strong>Domain Analysis Error:</strong> {{ domain_error }}
+                </div>
+            {% endif %}
+
+            {% if file_error %}
+                <div class="error">
+                    <strong>File Analysis Error:</strong> {{ file_error }}
+                </div>
+            {% endif %}
+        </div>
     </div>
 
-    <!-- URL Status Checker Section -->
-    <!-- ...existing code... -->
+    <script>
+        // Add loading indicators
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', () => {
+                const button = form.querySelector('button');
+                const icon = button.querySelector('i');
+                const text = button.textContent;
+                button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Analyzing...`;
+                button.disabled = true;
+            });
+        });
 
-<div class="tool-section">
-    <h2>URL & File Analysis</h2>
-    <form method="post" enctype="multipart/form-data" action="{% url 'check_url' %}">
-        {% csrf_token %}
-        <input type="text" name="domain_name" placeholder="Enter URL">
-        <div>
-            <input type="file" name="file" accept=".txt,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.pdf">
-            <small>(Supported files: TXT, DOC, DOCX, PPT, PPTX, XLS, XLSX, PDF)</small>
-        </div>
-        <button type="submit">Analyze</button>
-    </form>
-
-    {% if domain_info %}
-    <div class="results">
-        <h3>Domain Analysis</h3>
-        <div class="result-section">
-            <h4>Domain Information</h4>
-            <p><strong>Domain:</strong> {{ domain_info.name }}</p>
-            <p><strong>Categories:</strong> 
-                {% for vendor, category in domain_info.categories.items %}
-                    {{ vendor }}: {{ category }}<br>
-                {% endfor %}
-            </p>
-            <p><strong>Creation Date:</strong> {{ domain_info.creation_date }}</p>
-            <p><strong>Registrar:</strong> {{ domain_info.registrar }}</p>
-            <p><strong>Reputation Score:</strong> {{ domain_info.reputation }}</p>
-        </div>
-
-        <div class="result-section">
-            <h4>Analysis Statistics</h4>
-            <p><strong>Detection Ratio:</strong> 
-                {{ domain_info.last_analysis_stats.malicious }}/
-                {{ domain_info.last_analysis_stats.total }}</p>
-        </div>
-    </div>
-    {% endif %}
-
-    {% if ip_info %}
-    <div class="results">
-        <h3>IP Analysis</h3>
-        <div class="result-section">
-            <h4>IP Information</h4>
-            <p><strong>IP Address:</strong> {{ ip_info.address }}</p>
-            <p><strong>Country:</strong> {{ ip_info.country }}</p>
-            <p><strong>ASN:</strong> {{ ip_info.asn }}</p>
-            <p><strong>AS Owner:</strong> {{ ip_info.as_owner }}</p>
-            <p><strong>Reputation:</strong> {{ ip_info.reputation }}</p>
-        </div>
-
-        <div class="result-section">
-            <h4>Analysis Statistics</h4>
-            <p><strong>Detection Ratio:</strong> 
-                {{ ip_info.last_analysis_stats.malicious }}/
-                {{ ip_info.last_analysis_stats.total }}</p>
-        </div>
-    </div>
-    {% endif %}
-
-    {% if file_info %}
-    <div class="results">
-        <h3>File Analysis</h3>
-        <div class="result-section">
-            <h4>Basic Information</h4>
-            <p><strong>File Name:</strong> {{ file_info.name }}</p>
-            <p><strong>File Type:</strong> {{ file_info.type }}</p>
-            <p><strong>File Size:</strong> {{ file_info.size }} bytes</p>
-            <p><strong>Magic:</strong> {{ file_info.magic }}</p>
-        </div>
-
-        <div class="result-section">
-            <h4>File Hashes</h4>
-            <p><strong>MD5:</strong> {{ file_info.hashes.md5 }}</p>
-            <p><strong>SHA-1:</strong> {{ file_info.hashes.sha1 }}</p>
-            <p><strong>SHA-256:</strong> {{ file_info.hashes.sha256 }}</p>
-        </div>
-
-        <div class="result-section">
-            <h4>Threat Analysis</h4>
-            <p><strong>Detection Ratio:</strong> 
-                {{ file_info.last_analysis_stats.malicious }}/
-                {{ file_info.last_analysis_stats.total }}</p>
-            <p><strong>Reputation Score:</strong> {{ file_info.reputation }}</p>
-            <p><strong>First Seen:</strong> {{ file_info.first_seen }}</p>
-            <p><strong>Last Seen:</strong> {{ file_info.last_seen }}</p>
-            <p><strong>Times Submitted:</strong> {{ file_info.times_submitted }}</p>
-        </div>
-
-        {% if file_info.signatures %}
-        <div class="result-section">
-            <h4>Detected Signatures</h4>
-            <ul>
-            {% for signature in file_info.signatures %}
-                <li>{{ signature }}</li>
-            {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
-
-        {% if file_info.sandbox_verdicts %}
-        <div class="result-section">
-            <h4>Sandbox Analysis</h4>
-            {% for sandbox, verdict in file_info.sandbox_verdicts.items %}
-            <div>
-                <p><strong>{{ sandbox }}:</strong> {{ verdict.category }}</p>
-                <p>Confidence: {{ verdict.confidence }}</p>
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-    </div>
-    {% endif %}
-
-    {% if domain_error %}
-        <div class="error">
-            <strong>Domain Analysis Error:</strong> {{ domain_error }}
-        </div>
-    {% endif %}
-
-    {% if ip_error %}
-        <div class="error">
-            <strong>IP Analysis Error:</strong> {{ ip_error }}
-        </div>
-    {% endif %}
-
-    {% if file_error %}
-        <div class="error">
-            <strong>File Analysis Error:</strong> {{ file_error }}
-        </div>
-    {% endif %}
-</div>
-    </div>
+        // Add copy functionality for hash values
+        document.querySelectorAll('.hash-value').forEach(elem => {
+            elem.style.cursor = 'pointer';
+            elem.title = 'Click to copy hash';
+            elem.addEventListener('click', function() {
+                const hash = this.querySelector('code').textContent;
+                navigator.clipboard.writeText(hash).then(() => {
+                    const original = this.innerHTML;
+                    this.innerHTML += ' <small style="color: green;">(Copied!)</small>';
+                    setTimeout(() => this.innerHTML = original, 2000);
+                });
+            });
+        });
+    </script>
 </body>
 </html>

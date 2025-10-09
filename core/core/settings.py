@@ -127,6 +127,10 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# File upload settings
+DATA_UPLOAD_MAX_MEMORY_SIZE = 26214400  # 25MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 26214400  # 25MB
+
 VT_API_KEY = os.getenv('VT_API_KEY')
 VT_API_TIMEOUT = 30
 MAX_UPLOAD_SIZE = 26214400
@@ -141,6 +145,19 @@ CONTENT_TYPES = [
     'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     'text/plain'
 ]
+
+
+ALLOWED_MIME_TYPES = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'text/plain'
+]
+
 
 HASH_ALGORITHMS = {
     'MD5': 'md5',
