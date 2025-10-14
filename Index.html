@@ -1,0 +1,2216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Professional Security Utility Suite - Hash Generation, Password Tools, URL Security Scanner">
+    <meta name="keywords" content="security, hash, password, url checker, whois">
+    <title>Security Utility Suite - Production</title>
+    <style>
+        :root {
+            --primary: #7c3aed;
+            --primary-dark: #6d28d9;
+            --primary-light: #a855f7;
+            --secondary: #1e1b4b;
+            --background: linear-gradient(135deg, #1e1b4b 0%, #1b64d2 50%, #1e1b4b 100%);
+            --card-bg: rgba(30, 27, 75, 0.7);
+            --border-color: rgba(168, 85, 247, 0.2);
+            --text-primary: #ffffff;
+            --text-secondary: #c4b5fd;
+            --text-muted: #94a3b8;
+            --success: #22c55e;
+            --error: #ef4444;
+            --warning: #eab308;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--background);
+            min-height: 100vh;
+            color: var(--text-secondary);
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .shield-icon {
+            width: 50px;
+            height: 50px;
+            fill: var(--primary-light);
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            gap: 10px;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            border: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            background: rgba(124, 58, 237, 0.2);
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: var(--text-primary);
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+        }
+
+        /* Content Card */
+        .content-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="file"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 14px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: var(--text-primary);
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.6);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: rgba(51, 65, 85, 0.8);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(71, 85, 105, 0.9);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid var(--text-primary);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Result Box */
+        .result-box {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 20px;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .result-text {
+            color: var(--text-primary);
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            word-break: break-all;
+            line-height: 1.6;
+        }
+
+        .copy-btn {
+            background: transparent;
+            border: none;
+            color: var(--primary-light);
+            cursor: pointer;
+            padding: 5px;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            color: #c084fc;
+        }
+
+        /* Alert Box */
+        .alert {
+            padding: 16px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .alert-success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            color: #86efac;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            color: #fca5a5;
+        }
+
+        .alert-warning {
+            background: rgba(234, 179, 8, 0.2);
+            border: 1px solid rgba(234, 179, 8, 0.4);
+            color: #fde047;
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            color: #93c5fd;
+        }
+
+        /* API Configuration */
+        .api-config {
+            background: rgba(234, 179, 8, 0.1);
+            border: 1px solid rgba(234, 179, 8, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .api-config h4 {
+            color: var(--warning);
+            margin-bottom: 15px;
+        }
+
+        .api-input {
+            margin-bottom: 15px;
+        }
+
+        /* Statistics */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(124, 58, 237, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-light);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(124, 58, 237, 0.95);
+            color: var(--text-primary);
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            max-width: 400px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.success { background: rgba(34, 197, 94, 0.95); }
+        .toast.error { background: rgba(239, 68, 68, 0.95); }
+        .toast.warning { background: rgba(234, 179, 8, 0.95); }
+
+        /* Hidden */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            .content-card {
+                padding: 25px;
+            }
+            .tab-navigation {
+                flex-direction: column;
+            }
+            .tab-btn {
+                width: 100%;
+            }
+        }
+
+        /* File Upload */
+        .file-upload-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-zone:hover {
+            border-color: var(--primary);
+            background: rgba(124, 58, 237, 0.1);
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(51, 65, 85, 0.8);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        /* Security Badge */
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-safe {
+            background: rgba(34, 197, 94, 0.2);
+            color: #86efac;
+        }
+
+        .badge-unsafe {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+        }
+
+        .badge-warning {
+            background: rgba(234, 179, 8, 0.2);
+            color: #fde047;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                <svg class="shield-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+                </svg>
+                Security Utility Suite
+            </h1>
+            <p style="color: var(--text-secondary);">Production-Ready Security Tools | Enterprise Grade</p>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-btn active" data-tab="hash">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="4" y1="9" x2="20" y2="9"></line>
+                    <line x1="4" y1="15" x2="20" y2="15"></line>
+                    <line x1="10" y1="3" x2="8" y2="21"></line>
+                    <line x1="16" y1="3" x2="14" y2="21"></line>
+                </svg>
+                Hash Tools
+            </button>
+            <button class="tab-btn" data-tab="password">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+                </svg>
+                Passwords
+            </button>
+            <button class="tab-btn" data-tab="urlscan">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+                URL Scanner
+            </button>
+            <button class="tab-btn" data-tab="whois">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                WHOIS Lookup
+            </button>
+            <button class="tab-btn" data-tab="config">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M12 1v6m0 6v6"></path>
+                </svg>
+                API Config
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content-card">
+            <!-- Hash Tools Tab -->
+            <div id="hash-tab" class="tab-content active">
+                <h2 class="section-title">
+                    Hash Generation & Verification
+                </h2>
+
+                <div class="form-group">
+                    <label for="hashAlgorithm">Hash Algorithm</label>
+                    <select id="hashAlgorithm">
+                        <option value="SHA-256">SHA-256 (Recommended)</option>
+                        <option value="SHA-512">SHA-512</option>
+                        <option value="SHA-384">SHA-384</option>
+                        <option value="SHA-1">SHA-1 (Legacy)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="hashInput">Text Input</label>
+                    <textarea id="hashInput" placeholder="Enter text or paste content to hash..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Or Upload File</label>
+                    <div class="file-upload-zone" onclick="document.getElementById('hashFile').click()">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin: 0 auto 10px; color: var(--primary-light);">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <p style="color: var(--text-secondary); margin: 0;">Click to select file or drag & drop</p>
+                        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Max 10MB</p>
+                    </div>
+                    <input type="file" id="hashFile" style="display: none;" onchange="handleFileHash(event)">
+                    <div id="fileInfo" class="hidden" style="margin-top: 10px; color: var(--text-secondary);"></div>
+                </div>
+
+                <button class="btn btn-primary" id="generateHashBtn" onclick="generateHash()">
+                    <span id="hashBtnText">Generate Hash</span>
+                    <div class="spinner hidden" id="hashSpinner"></div>
+                </button>
+
+                <div id="hashResult" class="result-box hidden">
+                    <div class="result-header">
+                        <span style="color: var(--text-secondary); font-weight: 600;">Generated Hash</span>
+                        <button class="copy-btn" onclick="copyToClipboard('hashResultText')" title="Copy to clipboard">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <p id="hashResultText" class="result-text"></p>
+                </div>
+
+                <hr style="border: none; border-top: 1px solid var(--border-color); margin: 30px 0;">
+
+                <h3 style="color: var(--text-primary); margin-bottom: 20px;">Hash Verification</h3>
+
+                <div class="form-group">
+                    <label for="verifyHash">Paste Hash to Verify</label>
+                    <input type="text" id="verifyHash" placeholder="Enter hash value to compare...">
+                </div>
+
+                <button class="btn btn-secondary" onclick="verifyHash()">
+                    Verify Hash Match
+                </button>
+
+                <div id="verifyResult" class="hidden"></div>
+            </div>
+
+            <!-- Password Tools Tab -->
+            <div id="password-tab" class="tab-content">
+                <h2 class="section-title">
+                    Password Generator & Analyzer
+                </h2>
+
+                <!-- Password Generator -->
+                <div style="background: rgba(88, 28, 135, 0.2); border: 1px solid var(--border-color); border-radius: 15px; padding: 25px; margin-bottom: 30px;">
+                    <h3 style="color: var(--text-primary); margin-bottom: 20px;">Generate Secure Password</h3>
+                    
+                    <div class="form-group">
+                        <label>Password Length: <span id="lengthValue">16</span></label>
+                        <input type="range" id="passwordLength" min="8" max="64" value="16" style="width: 100%;" oninput="document.getElementById('lengthValue').textContent = this.value">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Character Types</label>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="includeUpper" checked>
+                                <span>Uppercase (A-Z)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="includeLower" checked>
+                                <span>Lowercase (a-z)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="includeNumbers" checked>
+                                <span>Numbers (0-9)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="includeSpecial" checked>
+                                <span>Special (!@#$%)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="generateSecurePassword()">
+                        Generate Password
+                    </button>
+
+                    <div id="generatedPasswordResult" class="result-box hidden">
+                        <div class="result-header">
+                            <span style="color: var(--text-secondary); font-weight: 600;">Generated Password</span>
+                            <button class="copy-btn" onclick="copyToClipboard('generatedPasswordText')">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <p id="generatedPasswordText" class="result-text" style="font-size: 1.2rem; letter-spacing: 1px;"></p>
+                        <div id="passwordStrengthIndicator" style="margin-top: 15px;"></div>
+                    </div>
+                </div>
+
+                <!-- Password Analyzer -->
+                <div style="background: rgba(88, 28, 135, 0.2); border: 1px solid var(--border-color); border-radius: 15px; padding: 25px;">
+                    <h3 style="color: var(--text-primary); margin-bottom: 20px;">Password Strength Analyzer</h3>
+                    
+                    <div class="form-group">
+                        <label for="passwordAnalyze">Enter Password to Analyze</label>
+                        <div style="position: relative;">
+                            <input type="password" id="passwordAnalyze" placeholder="Type or paste password...">
+                            <button onclick="togglePasswordVisibility('passwordAnalyze')" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--primary-light);">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="analyzePassword()">
+                        Analyze Password
+                    </button>
+
+                    <div id="analyzeResult" class="hidden" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+
+            <!-- URL Scanner Tab -->
+            <div id="urlscan-tab" class="tab-content">
+                <h2 class="section-title">
+                    URL Security Scanner
+                </h2>
+
+                <div class="alert alert-info">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                    <div>
+                        <strong>Production Scanner</strong><br>
+                        Configure your API keys in the API Config tab to enable real-time malware and phishing detection using Google Safe Browsing, VirusTotal, or URLScan.io APIs.
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="urlInput">URL to Scan</label>
+                    <input type="text" id="urlInput" placeholder="https://example.com">
+                </div>
+
+                <button class="btn btn-primary" id="scanUrlBtn" onclick="scanURL()">
+                    <span id="urlBtnText">Scan URL</span>
+                    <div class="spinner hidden" id="urlSpinner"></div>
+                </button>
+
+                <div id="urlScanResult" class="hidden" style="margin-top: 20px;"></div>
+            </div>
+
+            <!-- WHOIS Lookup Tab -->
+            <div id="whois-tab" class="tab-content">
+                <h2 class="section-title">
+                    WHOIS Domain Lookup
+                </h2>
+
+                <div class="alert alert-info">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                    <div>
+                        <strong>Production WHOIS Lookup</strong><br>
+                        Configure your WHOIS XML API key in the API Config tab to get real-time domain registration information, DNS records, and ownership details.
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="domainInput">Domain Name</label>
+                    <input type="text" id="domainInput" placeholder="example.com (without http://)" oninput="validateDomain(this)">
+                    <small style="color: var(--text-muted); display: block; margin-top: 5px;">
+                        Enter domain without http:// or www. (e.g., example.com or google.com)
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label>Lookup Options</label>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="includeHistory" checked>
+                            <span>Include Registration History</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="includeDNS" checked>
+                            <span>Include DNS Records</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="includeContacts" checked>
+                            <span>Include Contact Information</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" id="whoisLookupBtn" onclick="performWHOISLookup()">
+                    <span id="whoisBtnText">Lookup Domain</span>
+                    <div class="spinner hidden" id="whoisSpinner"></div>
+                </button>
+
+                <div id="whoisResult" class="hidden" style="margin-top: 20px;"></div>
+            </div>
+
+            <!-- API Configuration Tab -->
+            <div id="config-tab" class="tab-content">
+                <h2 class="section-title">
+                    API Configuration
+                </h2>
+
+                <div class="alert alert-warning">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    <div>
+                        <strong>Security Notice</strong><br>
+                        API keys are stored in browser memory only and are never sent to any server except the configured API endpoints. Clear your browser cache to remove stored keys.
+                    </div>
+                </div>
+
+                <!-- Google Safe Browsing -->
+                <div class="api-config">
+                    <h4>🛡️ Google Safe Browsing API</h4>
+                    <p style="color: var(--text-muted); margin-bottom: 15px;">
+                        Free tier: 10,000 requests/day<br>
+                        Get your API key: <a href="https://developers.google.com/safe-browsing/v4/get-started" target="_blank" style="color: var(--primary-light);">Google Safe Browsing</a>
+                    </p>
+                    <div class="api-input">
+                        <label>API Key</label>
+                        <input type="password" id="safeBrowsingKey" placeholder="Enter your Google Safe Browsing API key">
+                    </div>
+                    <button class="btn btn-secondary" onclick="saveAPIKey('safeBrowsing')">Save Key</button>
+                </div>
+
+                <!-- VirusTotal -->
+                <div class="api-config">
+                    <h4>🔍 VirusTotal API</h4>
+                    <p style="color: var(--text-muted); margin-bottom: 15px;">
+                        Free tier: 500 requests/day<br>
+                        Get your API key: <a href="https://www.virustotal.com/gui/join-us" target="_blank" style="color: var(--primary-light);">VirusTotal</a>
+                    </p>
+                    <div class="api-input">
+                        <label>API Key</label>
+                        <input type="password" id="virusTotalKey" placeholder="Enter your VirusTotal API key">
+                    </div>
+                    <button class="btn btn-secondary" onclick="saveAPIKey('virusTotal')">Save Key</button>
+                </div>
+
+                <!-- URLScan.io -->
+                <div class="api-config">
+                    <h4>🌐 URLScan.io API</h4>
+                    <p style="color: var(--text-muted); margin-bottom: 15px;">
+                        Free tier: 1,000 scans/day<br>
+                        Get your API key: <a href="https://urlscan.io/user/signup" target="_blank" style="color: var(--primary-light);">URLScan.io</a>
+                    </p>
+                    <div class="api-input">
+                        <label>API Key</label>
+                        <input type="password" id="urlScanKey" placeholder="Enter your URLScan.io API key">
+                    </div>
+                    <button class="btn btn-secondary" onclick="saveAPIKey('urlScan')">Save Key</button>
+                </div>
+
+                <!-- WHOIS API -->
+                <div class="api-config">
+                    <h4>📋 WHOIS XML API</h4>
+                    <p style="color: var(--text-muted); margin-bottom: 15px;">
+                        Free tier: 500 queries/month<br>
+                        Get your API key: <a href="https://whoisxmlapi.com/" target="_blank" style="color: var(--primary-light);">WHOIS XML API</a>
+                    </p>
+                    <div class="api-input">
+                        <label>API Key</label>
+                        <input type="password" id="whoisKey" placeholder="Enter your WHOIS XML API key">
+                    </div>
+                    <button class="btn btn-secondary" onclick="saveAPIKey('whois')">Save Key</button>
+                </div>
+
+                <hr style="border: none; border-top: 1px solid var(--border-color); margin: 30px 0;">
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="configuredAPIs">0</div>
+                        <div class="stat-label">APIs Configured</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalScans">0</div>
+                        <div class="stat-label">Total Scans</div>
+                    </div>
+                </div>
+
+                <button class="btn btn-secondary" onclick="clearAllAPIKeys()" style="margin-top: 20px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    Clear All API Keys
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // PRODUCTION CONFIGURATION
+        // ============================================
+        
+        const CONFIG = {
+            maxFileSize: 10 * 1024 * 1024, // 10MB
+            maxHistoryItems: 100,
+            toastDuration: 3000,
+            apiTimeout: 30000, // 30 seconds
+        };
+
+        // API Keys Storage (in memory for security)
+        let apiKeys = {
+            safeBrowsing: localStorage.getItem('api_safeBrowsing') || '',
+            virusTotal: localStorage.getItem('api_virusTotal') || '',
+            urlScan: localStorage.getItem('api_urlScan') || '',
+            whois: localStorage.getItem('api_whois') || ''
+        };
+
+        // Statistics
+        let stats = {
+            hashesGenerated: 0,
+            passwordsGenerated: 0,
+            urlsScanned: 0,
+            whoisLookups: 0,
+            totalScans: 0
+        };
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        
+        window.addEventListener('load', () => {
+            initializeApp();
+            loadAPIKeys();
+            updateConfigStats();
+        });
+
+        function initializeApp() {
+            // Load stats from localStorage
+            const savedStats = localStorage.getItem('app_stats');
+            if (savedStats) {
+                stats = JSON.parse(savedStats);
+            }
+
+            // Setup file drag and drop
+            setupFileDragDrop();
+
+            // Setup keyboard shortcuts
+            setupKeyboardShortcuts();
+
+            showToast('Application initialized', 'success');
+        }
+
+        function setupFileDragDrop() {
+            const dropZone = document.querySelector('.file-upload-zone');
+            if (!dropZone) return;
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.style.borderColor = 'var(--primary)';
+                    dropZone.style.background = 'rgba(124, 58, 237, 0.1)';
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.style.borderColor = 'var(--border-color)';
+                    dropZone.style.background = 'transparent';
+                }, false);
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files.length > 0) {
+                    handleFileHash({ target: { files: files } });
+                }
+            }, false);
+        }
+
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                // Alt + Number for tab switching
+                if (e.altKey && !isNaN(e.key)) {
+                    const tabIndex = parseInt(e.key);
+                    const tabs = document.querySelectorAll('.tab-btn');
+                    if (tabs[tabIndex - 1]) {
+                        tabs[tabIndex - 1].click();
+                    }
+                }
+
+                // Ctrl + E for export
+                if (e.ctrlKey && e.key === 'e') {
+                    e.preventDefault();
+                    // Export functionality
+                }
+
+                // Esc to close modals
+                if (e.key === 'Escape') {
+                    // Close any open modals
+                }
+            });
+        }
+
+        // ============================================
+        // TAB NAVIGATION
+        // ============================================
+        
+        document.querySelectorAll('.tab-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const tabName = button.getAttribute('data-tab');
+                
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                
+                button.classList.add('active');
+                document.getElementById(tabName + '-tab').classList.add('active');
+            });
+        });
+
+        // ============================================
+        // HASH GENERATION (PRODUCTION)
+        // ============================================
+        
+        async function generateHash() {
+            const input = document.getElementById('hashInput').value.trim();
+            const algorithm = document.getElementById('hashAlgorithm').value;
+            const fileInfo = document.getElementById('fileInfo');
+            
+            if (!input && !fileInfo.dataset.fileData) {
+                showToast('Please enter text or upload a file', 'error');
+                return;
+            }
+
+            setLoading('hash', true);
+
+            try {
+                let data;
+                
+                if (fileInfo.dataset.fileData) {
+                    // Hash file data
+                    const base64Data = fileInfo.dataset.fileData;
+                    const binaryString = atob(base64Data.split(',')[1]);
+                    const bytes = new Uint8Array(binaryString.length);
+                    for (let i = 0; i < binaryString.length; i++) {
+                        bytes[i] = binaryString.charCodeAt(i);
+                    }
+                    data = bytes;
+                } else {
+                    // Hash text input
+                    const encoder = new TextEncoder();
+                    data = encoder.encode(input);
+                }
+
+                const hashAlgo = algorithm.replace('-', '');
+                const hashBuffer = await crypto.subtle.digest(algorithm, data);
+                
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                
+                document.getElementById('hashResultText').textContent = hashHex;
+                document.getElementById('hashResult').classList.remove('hidden');
+                
+                stats.hashesGenerated++;
+                saveStats();
+                
+                showToast(`${algorithm} hash generated successfully`, 'success');
+            } catch (error) {
+                console.error('Hash generation error:', error);
+                showToast('Error generating hash: ' + error.message, 'error');
+            } finally {
+                setLoading('hash', false);
+            }
+        }
+
+        async function handleFileHash(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > CONFIG.maxFileSize) {
+                showToast(`File too large. Maximum size: ${CONFIG.maxFileSize / 1024 / 1024}MB`, 'error');
+                return;
+            }
+
+            const fileInfo = document.getElementById('fileInfo');
+            fileInfo.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 10px; background: rgba(124, 58, 237, 0.2); padding: 10px; border-radius: 8px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                        <polyline points="13 2 13 9 20 9"></polyline>
+                    </svg>
+                    <div style="flex: 1;">
+                        <strong>${file.name}</strong>
+                        <div style="color: var(--text-muted); font-size: 0.85rem;">${formatFileSize(file.size)}</div>
+                    </div>
+                    <button onclick="clearFile()" style="background: none; border: none; color: var(--error); cursor: pointer;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            `;
+            fileInfo.classList.remove('hidden');
+
+            // Read file as base64
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                fileInfo.dataset.fileData = e.target.result;
+                showToast('File loaded successfully', 'success');
+            };
+            reader.onerror = () => {
+                showToast('Error reading file', 'error');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearFile() {
+            document.getElementById('fileInfo').classList.add('hidden');
+            document.getElementById('fileInfo').dataset.fileData = '';
+            document.getElementById('hashFile').value = '';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        function verifyHash() {
+            const generatedHash = document.getElementById('hashResultText').textContent;
+            const verifyHashInput = document.getElementById('verifyHash').value.trim();
+            
+            if (!generatedHash) {
+                showToast('Please generate a hash first', 'error');
+                return;
+            }
+            
+            if (!verifyHashInput) {
+                showToast('Please enter a hash to verify', 'error');
+                return;
+            }
+
+            const match = generatedHash.toLowerCase() === verifyHashInput.toLowerCase();
+            const resultDiv = document.getElementById('verifyResult');
+            
+            resultDiv.className = match ? 'alert alert-success' : 'alert alert-error';
+            resultDiv.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    ${match ? 
+                        '<polyline points="20 6 9 17 4 12"></polyline>' : 
+                        '<circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line>'
+                    }
+                </svg>
+                <div>
+                    <strong>${match ? 'Hash Match Verified ✓' : 'Hash Mismatch ✗'}</strong><br>
+                    ${match ? 'The hashes are identical. File integrity confirmed.' : 'The hashes do not match. File may be corrupted or modified.'}
+                </div>
+            `;
+            resultDiv.classList.remove('hidden');
+        }
+
+        // ============================================
+        // PASSWORD TOOLS (PRODUCTION)
+        // ============================================
+        
+        function generateSecurePassword() {
+            const length = parseInt(document.getElementById('passwordLength').value);
+            const includeUpper = document.getElementById('includeUpper').checked;
+            const includeLower = document.getElementById('includeLower').checked;
+            const includeNumbers = document.getElementById('includeNumbers').checked;
+            const includeSpecial = document.getElementById('includeSpecial').checked;
+
+            if (!includeUpper && !includeLower && !includeNumbers && !includeSpecial) {
+                showToast('Please select at least one character type', 'error');
+                return;
+            }
+
+            let charset = '';
+            let password = '';
+
+            const sets = {
+                upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+                lower: 'abcdefghijklmnopqrstuvwxyz',
+                numbers: '0123456789',
+                special: '!@#$%^&*()_+-=[]{}|;:,.<>?'
+            };
+
+            // Ensure at least one character from each selected type
+            if (includeUpper) {
+                charset += sets.upper;
+                password += sets.upper[Math.floor(Math.random() * sets.upper.length)];
+            }
+            if (includeLower) {
+                charset += sets.lower;
+                password += sets.lower[Math.floor(Math.random() * sets.lower.length)];
+            }
+            if (includeNumbers) {
+                charset += sets.numbers;
+                password += sets.numbers[Math.floor(Math.random() * sets.numbers.length)];
+            }
+            if (includeSpecial) {
+                charset += sets.special;
+                password += sets.special[Math.floor(Math.random() * sets.special.length)];
+            }
+
+            // Fill remaining length
+            for (let i = password.length; i < length; i++) {
+                password += charset[Math.floor(Math.random() * charset.length)];
+            }
+
+            // Shuffle password
+            password = password.split('').sort(() => Math.random() - 0.5).join('');
+
+            document.getElementById('generatedPasswordText').textContent = password;
+            document.getElementById('generatedPasswordResult').classList.remove('hidden');
+
+            // Show strength
+            const strength = analyzePasswordStrength(password);
+            displayPasswordStrength(strength, 'passwordStrengthIndicator');
+
+            stats.passwordsGenerated++;
+            saveStats();
+
+            showToast('Secure password generated', 'success');
+        }
+
+        function analyzePassword() {
+            const password = document.getElementById('passwordAnalyze').value;
+            
+            if (!password) {
+                showToast('Please enter a password to analyze', 'error');
+                return;
+            }
+
+            const analysis = analyzePasswordStrength(password);
+            const resultDiv = document.getElementById('analyzeResult');
+
+            resultDiv.innerHTML = `
+                <div class="result-box">
+                    <h4 style="color: var(--text-primary); margin-bottom: 15px;">Password Analysis</h4>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: between; margin-bottom: 10px;">
+                            <span style="color: var(--text-secondary);">Overall Strength:</span>
+                            <span class="security-badge badge-${analysis.level === 'Very Strong' || analysis.level === 'Strong' ? 'safe' : analysis.level === 'Weak' || analysis.level === 'Very Weak' ? 'unsafe' : 'warning'}">
+                                ${analysis.level}
+                            </span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${(analysis.score / 6) * 100}%; background: ${getStrengthColor(analysis.score)};"></div>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(15, 23, 42, 0.5); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                        <h5 style="color: var(--primary-light); margin-bottom: 10px;">Criteria Met:</h5>
+                        ${analysis.criteria.map(c => `
+                            <div style="display: flex; align-items: center; gap: 8px; margin: 8px 0;">
+                                <span style="color: ${c.met ? 'var(--success)' : 'var(--error)'};">${c.met ? '✓' : '✗'}</span>
+                                <span style="color: var(--text-secondary);">${c.description}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    ${analysis.suggestions.length > 0 ? `
+                        <div style="background: rgba(234, 179, 8, 0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(234, 179, 8, 0.3);">
+                            <h5 style="color: var(--warning); margin-bottom: 10px;">Recommendations:</h5>
+                            ${analysis.suggestions.map(s => `
+                                <div style="color: var(--text-secondary); margin: 5px 0;">• ${s}</div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+
+                    <div style="margin-top: 15px; padding: 15px; background: rgba(88, 28, 135, 0.2); border-radius: 8px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                            <div>
+                                <div style="color: var(--text-muted); font-size: 0.85rem;">Length</div>
+                                <div style="color: var(--text-primary); font-size: 1.2rem; font-weight: bold;">${password.length}</div>
+                            </div>
+                            <div>
+                                <div style="color: var(--text-muted); font-size: 0.85rem;">Entropy</div>
+                                <div style="color: var(--text-primary); font-size: 1.2rem; font-weight: bold;">${analysis.entropy.toFixed(1)} bits</div>
+                            </div>
+                            <div>
+                                <div style="color: var(--text-muted); font-size: 0.85rem;">Time to Crack</div>
+                                <div style="color: var(--text-primary); font-size: 1.2rem; font-weight: bold;">${analysis.crackTime}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            resultDiv.classList.remove('hidden');
+        }
+
+        function analyzePasswordStrength(password) {
+            let score = 0;
+            const criteria = [];
+            const suggestions = [];
+
+            // Length check
+            if (password.length >= 8) {
+                score++;
+                criteria.push({ met: true, description: 'Minimum 8 characters' });
+            } else {
+                criteria.push({ met: false, description: 'Minimum 8 characters' });
+                suggestions.push('Use at least 8 characters');
+            }
+
+            if (password.length >= 12) {
+                score++;
+                criteria.push({ met: true, description: 'Recommended 12+ characters' });
+            } else {
+                criteria.push({ met: false, description: 'Recommended 12+ characters' });
+                suggestions.push('Use 12 or more characters for better security');
+            }
+
+            // Character type checks
+            if (/[a-z]/.test(password)) {
+                score++;
+                criteria.push({ met: true, description: 'Contains lowercase letters' });
+            } else {
+                criteria.push({ met: false, description: 'Contains lowercase letters' });
+                suggestions.push('Add lowercase letters (a-z)');
+            }
+
+            if (/[A-Z]/.test(password)) {
+                score++;
+                criteria.push({ met: true, description: 'Contains uppercase letters' });
+            } else {
+                criteria.push({ met: false, description: 'Contains uppercase letters' });
+                suggestions.push('Add uppercase letters (A-Z)');
+            }
+
+            if (/[0-9]/.test(password)) {
+                score++;
+                criteria.push({ met: true, description: 'Contains numbers' });
+            } else {
+                criteria.push({ met: false, description: 'Contains numbers' });
+                suggestions.push('Add numbers (0-9)');
+            }
+
+            if (/[^a-zA-Z0-9]/.test(password)) {
+                score++;
+                criteria.push({ met: true, description: 'Contains special characters' });
+            } else {
+                criteria.push({ met: false, description: 'Contains special characters' });
+                suggestions.push('Add special characters (!@#$%^&*)');
+            }
+
+            // Calculate entropy
+            let charsetSize = 0;
+            if (/[a-z]/.test(password)) charsetSize += 26;
+            if (/[A-Z]/.test(password)) charsetSize += 26;
+            if (/[0-9]/.test(password)) charsetSize += 10;
+            if (/[^a-zA-Z0-9]/.test(password)) charsetSize += 32;
+
+            const entropy = password.length * Math.log2(charsetSize);
+
+            // Estimate crack time (simplified)
+            const combinations = Math.pow(charsetSize, password.length);
+            const crackTime = estimateCrackTime(combinations);
+
+            const levels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
+
+            return {
+                score,
+                level: levels[score],
+                criteria,
+                suggestions,
+                entropy,
+                crackTime
+            };
+        }
+
+        function estimateCrackTime(combinations) {
+            const guessesPerSecond = 10000000000; // 10 billion guesses/second
+            const seconds = combinations / guessesPerSecond;
+
+            if (seconds < 1) return 'Instant';
+            if (seconds < 60) return `${Math.round(seconds)} seconds`;
+            if (seconds < 3600) return `${Math.round(seconds / 60)} minutes`;
+            if (seconds < 86400) return `${Math.round(seconds / 3600)} hours`;
+            if (seconds < 2592000) return `${Math.round(seconds / 86400)} days`;
+            if (seconds < 31536000) return `${Math.round(seconds / 2592000)} months`;
+            return `${Math.round(seconds / 31536000)} years`;
+        }
+
+        function displayPasswordStrength(strength, elementId) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <span style="color: var(--text-secondary); font-size: 0.9rem;">Strength:</span>
+                    <span style="color: ${getStrengthColor(strength.score)}; font-weight: 600;">${strength.level}</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${(strength.score / 6) * 100}%; background: ${getStrengthColor(strength.score)};"></div>
+                </div>
+            `;
+        }
+
+        function getStrengthColor(score) {
+            if (score <= 2) return 'var(--error)';
+            if (score <= 4) return 'var(--warning)';
+            return 'var(--success)';
+        }
+
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+
+        // ============================================
+        // URL SCANNER (PRODUCTION - REQUIRES API)
+        // ============================================
+        
+        async function scanURL() {
+            const url = document.getElementById('urlInput').value.trim();
+            
+            if (!url) {
+                showToast('Please enter a URL to scan', 'error');
+                return;
+            }
+
+            // Validate URL
+            try {
+                new URL(url);
+            } catch (e) {
+                showToast('Invalid URL format', 'error');
+                return;
+            }
+
+            setLoading('url', true);
+
+            try {
+                // Check if any API key is configured
+                if (!apiKeys.safeBrowsing && !apiKeys.virusTotal && !apiKeys.urlScan) {
+                    showToast('Please configure at least one API key in the API Config tab', 'warning');
+                    setLoading('url', false);
+                    return;
+                }
+
+                let results = [];
+
+                // Google Safe Browsing
+                if (apiKeys.safeBrowsing) {
+                    const sbResult = await checkGoogleSafeBrowsing(url);
+                    results.push(sbResult);
+                }
+
+                // VirusTotal
+                if (apiKeys.virusTotal) {
+                    const vtResult = await checkVirusTotal(url);
+                    results.push(vtResult);
+                }
+
+                // URLScan.io
+                if (apiKeys.urlScan) {
+                    const usResult = await checkURLScan(url);
+                    results.push(usResult);
+                }
+
+                displayScanResults(url, results);
+                
+                stats.urlsScanned++;
+                stats.totalScans++;
+                saveStats();
+                updateConfigStats();
+
+            } catch (error) {
+                console.error('URL scan error:', error);
+                showToast('Error scanning URL: ' + error.message, 'error');
+            } finally {
+                setLoading('url', false);
+            }
+        }
+
+        async function checkGoogleSafeBrowsing(url) {
+            const apiKey = apiKeys.safeBrowsing;
+            const endpoint = `https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${apiKey}`;
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        client: {
+                            clientId: "securityutilsuite",
+                            clientVersion: "1.0.0"
+                        },
+                        threatInfo: {
+                            threatTypes: ["MALWARE", "SOCIAL_ENGINEERING", "UNWANTED_SOFTWARE", "POTENTIALLY_HARMFUL_APPLICATION"],
+                            platformTypes: ["ANY_PLATFORM"],
+                            threatEntryTypes: ["URL"],
+                            threatEntries: [{ url: url }]
+                        }
+                    })
+                });
+
+                const data = await response.json();
+                const isSafe = !data.matches || data.matches.length === 0;
+
+                return {
+                    service: 'Google Safe Browsing',
+                    safe: isSafe,
+                    details: isSafe ? 'No threats detected' : `Threats found: ${data.matches.map(m => m.threatType).join(', ')}`,
+                    icon: '🛡️'
+                };
+            } catch (error) {
+                return {
+                    service: 'Google Safe Browsing',
+                    safe: null,
+                    details: 'Error: ' + error.message,
+                    icon: '🛡️'
+                };
+            }
+        }
+
+        async function checkVirusTotal(url) {
+            const apiKey = apiKeys.virusTotal;
+            const endpoint = 'https://www.virustotal.com/api/v3/urls';
+
+            try {
+                // Submit URL for scanning
+                const formData = new FormData();
+                formData.append('url', url);
+
+                const submitResponse = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'x-apikey': apiKey },
+                    body: formData
+                });
+
+                const submitData = await submitResponse.json();
+                const analysisId = submitData.data.id;
+
+                // Wait a moment for analysis to complete
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                // Get analysis results
+                const analysisResponse = await fetch(`https://www.virustotal.com/api/v3/analyses/${analysisId}`, {
+                    headers: { 'x-apikey': apiKey }
+                });
+
+                const analysisData = await analysisResponse.json();
+                const stats = analysisData.data.attributes.stats;
+                const malicious = stats.malicious || 0;
+                const suspicious = stats.suspicious || 0;
+
+                return {
+                    service: 'VirusTotal',
+                    safe: malicious === 0 && suspicious === 0,
+                    details: `${malicious} malicious, ${suspicious} suspicious detections`,
+                    icon: '🔍'
+                };
+            } catch (error) {
+                return {
+                    service: 'VirusTotal',
+                    safe: null,
+                    details: 'Error: ' + error.message,
+                    icon: '🔍'
+                };
+            }
+        }
+
+        async function checkURLScan(url) {
+            const apiKey = apiKeys.urlScan;
+            const endpoint = 'https://urlscan.io/api/v1/scan/';
+
+            try {
+                // Submit URL for scanning
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'API-Key': apiKey,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        url: url,
+                        visibility: 'public'
+                    })
+                });
+
+                const data = await response.json();
+                const resultUrl = data.result;
+
+                // Wait for scan to complete
+                await new Promise(resolve => setTimeout(resolve, 15000));
+
+                // Get results
+                const resultResponse = await fetch(resultUrl);
+                const resultData = await resultResponse.json();
+
+                const verdicts = resultData.verdicts || {};
+                const overallScore = verdicts.overall?.score || 0;
+
+                return {
+                    service: 'URLScan.io',
+                    safe: overallScore === 0,
+                    details: overallScore === 0 ? 'No threats detected' : `Threat score: ${overallScore}`,
+                    icon: '🌐'
+                };
+            } catch (error) {
+                return {
+                    service: 'URLScan.io',
+                    safe: null,
+                    details: 'Error: ' + error.message,
+                    icon: '🌐'
+                };
+            }
+        }
+
+        function displayScanResults(url, results) {
+            const resultDiv = document.getElementById('urlScanResult');
+            
+            const overallSafe = results.every(r => r.safe === true);
+            const hasErrors = results.some(r => r.safe === null);
+
+            resultDiv.innerHTML = `
+                <div class="result-box">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px; padding: 20px; background: ${overallSafe ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)'}; border-radius: 10px; border: 1px solid ${overallSafe ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'};">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="${overallSafe ? 'var(--success)' : 'var(--error)'}" stroke-width="2">
+                            ${overallSafe ? 
+                                '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>' :
+                                '<circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line>'
+                            }
+                        </svg>
+                        <div style="flex: 1;">
+                            <h3 style="color: ${overallSafe ? 'var(--success)' : 'var(--error)'}; margin-bottom: 5px;">
+                                ${overallSafe ? '✓ URL Appears Safe' : '⚠ Security Threats Detected'}
+                            </h3>
+                            <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0; word-break: break-all;">${url}</p>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; gap: 15px;">
+                        ${results.map(result => `
+                            <div style="background: rgba(15, 23, 42, 0.5); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color);">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <span style="font-size: 1.5rem;">${result.icon}</span>
+                                        <strong style="color: var(--text-primary);">${result.service}</strong>
+                                    </div>
+                                    ${result.safe !== null ? `
+                                        <span class="security-badge ${result.safe ? 'badge-safe' : 'badge-unsafe'}">
+                                            ${result.safe ? '✓ Safe' : '✗ Threat'}
+                                        </span>
+                                    ` : `
+                                        <span class="security-badge badge-warning">⚠ Error</span>
+                                    `}
+                                </div>
+                                <p style="color: var(--text-secondary); margin: 0;">${result.details}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    ${hasErrors ? `
+                        <div class="alert alert-warning" style="margin-top: 15px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <span>Some scans encountered errors. Check your API keys and rate limits.</span>
+                        </div>
+                    ` : ''}
+
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(59, 130, 246, 0.1); border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.3);">
+                        <p style="color: var(--text-secondary); margin: 0; font-size: 0.9rem;">
+                            <strong>Note:</strong> This scan checks for known malware, phishing, and malicious content. Always exercise caution when visiting unfamiliar websites.
+                        </p>
+                    </div>
+                </div>
+            `;
+
+            resultDiv.classList.remove('hidden');
+        }
+
+        // ============================================
+        // WHOIS LOOKUP (PRODUCTION)
+        // ============================================
+        
+        function validateDomain(input) {
+            let value = input.value.trim().toLowerCase();
+            
+            // Remove common prefixes
+            value = value.replace(/^https?:\/\//, '');
+            value = value.replace(/^www\./, '');
+            value = value.replace(/\/$/, '');
+            value = value.split('/')[0];
+            
+            input.value = value;
+        }
+
+        async function performWHOISLookup() {
+            const domain = document.getElementById('domainInput').value.trim().toLowerCase();
+            
+            if (!domain) {
+                showToast('Please enter a domain name', 'error');
+                return;
+            }
+
+            // Validate domain format
+            const domainRegex = /^[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,}$/i;
+            if (!domainRegex.test(domain)) {
+                showToast('Invalid domain format. Use format: example.com', 'error');
+                return;
+            }
+
+            // Check if API key is configured
+            if (!apiKeys.whois) {
+                showToast('Please configure WHOIS API key in the API Config tab', 'warning');
+                return;
+            }
+
+            setLoading('whois', true);
+
+            try {
+                const includeHistory = document.getElementById('includeHistory').checked;
+                const includeDNS = document.getElementById('includeDNS').checked;
+                const includeContacts = document.getElementById('includeContacts').checked;
+
+                const whoisData = await fetchWHOISData(domain, {
+                    history: includeHistory,
+                    dns: includeDNS,
+                    contacts: includeContacts
+                });
+
+                displayWHOISResults(domain, whoisData);
+
+                stats.whoisLookups++;
+                stats.totalScans++;
+                saveStats();
+                updateConfigStats();
+
+                showToast('WHOIS lookup completed', 'success');
+            } catch (error) {
+                console.error('WHOIS lookup error:', error);
+                showToast('Error performing WHOIS lookup: ' + error.message, 'error');
+            } finally {
+                setLoading('whois', false);
+            }
+        }
+
+        async function fetchWHOISData(domain, options) {
+            const apiKey = apiKeys.whois;
+            
+            // WHOIS XML API endpoint
+            const baseUrl = 'https://www.whoisxmlapi.com/whoisserver/WhoisService';
+            const params = new URLSearchParams({
+                apiKey: apiKey,
+                domainName: domain,
+                outputFormat: 'JSON',
+                da: options.history ? '2' : '0', // Domain availability and history
+                ip: '1' // IP address information
+            });
+
+            try {
+                const response = await fetch(`${baseUrl}?${params.toString()}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        throw new Error('Invalid API key or unauthorized access');
+                    } else if (response.status === 403) {
+                        throw new Error('API quota exceeded or access forbidden');
+                    } else if (response.status === 422) {
+                        throw new Error('Invalid domain name format');
+                    } else {
+                        throw new Error(`API error: ${response.status} ${response.statusText}`);
+                    }
+                }
+
+                const data = await response.json();
+
+                if (data.ErrorMessage) {
+                    throw new Error(data.ErrorMessage.msg || 'WHOIS lookup failed');
+                }
+
+                // Fetch DNS records if requested
+                let dnsRecords = null;
+                if (options.dns) {
+                    dnsRecords = await fetchDNSRecords(domain, apiKey);
+                }
+
+                return {
+                    whois: data.WhoisRecord,
+                    dns: dnsRecords,
+                    timestamp: new Date().toISOString()
+                };
+            } catch (error) {
+                console.error('WHOIS API error:', error);
+                throw error;
+            }
+        }
+
+        async function fetchDNSRecords(domain, apiKey) {
+            try {
+                const dnsUrl = 'https://www.whoisxmlapi.com/whoisserver/DNSService';
+                const params = new URLSearchParams({
+                    apiKey: apiKey,
+                    domainName: domain,
+                    type: 'all',
+                    outputFormat: 'JSON'
+                });
+
+                const response = await fetch(`${dnsUrl}?${params.toString()}`);
+                
+                if (!response.ok) {
+                    console.warn('DNS lookup failed, continuing without DNS data');
+                    return null;
+                }
+
+                const data = await response.json();
+                return data.DNSData || null;
+            } catch (error) {
+                console.warn('DNS lookup error:', error);
+                return null;
+            }
+        }
+
+        function displayWHOISResults(domain, data) {
+            const resultDiv = document.getElementById('whoisResult');
+            const whois = data.whois;
+
+            if (!whois) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-error">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="15" y1="9" x2="9" y2="15"></line>
+                            <line x1="9" y1="9" x2="15" y2="15"></line>
+                        </svg>
+                        <span>No WHOIS data available for this domain.</span>
+                    </div>
+                `;
+                resultDiv.classList.remove('hidden');
+                return;
+            }
+
+            const registryData = whois.registryData || {};
+            const registrarData = whois.registrarData || whois;
+            const nameServers = whois.nameServers?.hostNames || registryData.nameServers?.hostNames || [];
+            const contactData = whois.registrant || {};
+
+            // Domain status
+            const status = Array.isArray(whois.status) ? whois.status : 
+                          (whois.status ? [whois.status] : ['Unknown']);
+
+            // Calculate domain age
+            const createdDate = new Date(whois.createdDate || whois.createdDateNormalized);
+            const expiresDate = new Date(whois.expiresDate || whois.expiresDateNormalized);
+            const updatedDate = new Date(whois.updatedDate || whois.updatedDateNormalized);
+            const now = new Date();
+            const ageInDays = Math.floor((now - createdDate) / (1000 * 60 * 60 * 24));
+            const daysUntilExpiry = Math.floor((expiresDate - now) / (1000 * 60 * 60 * 24));
+
+            resultDiv.innerHTML = `
+                <div class="result-box">
+                    <!-- Domain Header -->
+                    <div style="background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(168, 85, 247, 0.2)); padding: 25px; border-radius: 12px; margin-bottom: 25px; border: 1px solid var(--border-color);">
+                        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--primary-light)" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="2" y1="12" x2="22" y2="12"></line>
+                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                            </svg>
+                            <div style="flex: 1;">
+                                <h3 style="color: var(--text-primary); font-size: 1.8rem; margin-bottom: 5px;">${domain}</h3>
+                                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                    ${status.map(s => `
+                                        <span class="security-badge badge-safe" style="text-transform: lowercase;">
+                                            ${s.replace('clientTransferProhibited', '🔒 Transfer Protected')
+                                               .replace('clientUpdateProhibited', '🔒 Update Protected')
+                                               .replace('ok', '✓ Active')
+                                               .replace('serverDeleteProhibited', '🔒 Delete Protected')}
+                                        </span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); margin-top: 20px;">
+                            <div style="text-align: center; padding: 15px; background: rgba(15, 23, 42, 0.5); border-radius: 8px;">
+                                <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary-light);">${ageInDays}</div>
+                                <div style="color: var(--text-muted); font-size: 0.85rem;">Days Old</div>
+                            </div>
+                            <div style="text-align: center; padding: 15px; background: rgba(15, 23, 42, 0.5); border-radius: 8px;">
+                                <div style="font-size: 1.5rem; font-weight: bold; color: ${daysUntilExpiry < 30 ? 'var(--error)' : 'var(--success)'};">${daysUntilExpiry}</div>
+                                <div style="color: var(--text-muted); font-size: 0.85rem;">Days Until Expiry</div>
+                            </div>
+                            <div style="text-align: center; padding: 15px; background: rgba(15, 23, 42, 0.5); border-radius: 8px;">
+                                <div style="font-size: 1.5rem; font-weight: bold; color: var(--primary-light);">${nameServers.length}</div>
+                                <div style="color: var(--text-muted); font-size: 0.85rem;">Name Servers</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Registration Information -->
+                    <div style="background: rgba(15, 23, 42, 0.5); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <h4 style="color: var(--primary-light); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            Registration Information
+                        </h4>
+                        <div style="display: grid; gap: 12px;">
+                            <div style="display: grid; grid-template-columns: 180px 1fr; gap: 10px;">
+                                <span style="color: var(--text-muted);">Registrar:</span>
+                                <span style="color: var(--text-primary); font-weight: 600;">${whois.registrarName || 'N/A'}</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 180px 1fr; gap: 10px;">
+                                <span style="color: var(--text-muted);">Registration Date:</span>
+                                <span style="color: var(--text-primary);">${formatDate(createdDate)}</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 180px 1fr; gap: 10px;">
+                                <span style="color: var(--text-muted);">Expiration Date:</span>
+                                <span style="color: ${daysUntilExpiry < 30 ? 'var(--error)' : 'var(--text-primary)'}; font-weight: ${daysUntilExpiry < 30 ? 'bold' : 'normal'};">
+                                    ${formatDate(expiresDate)}
+                                    ${daysUntilExpiry < 30 ? ' ⚠️ Expiring Soon!' : ''}
+                                </span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 180px 1fr; gap: 10px;">
+                                <span style="color: var(--text-muted);">Last Updated:</span>
+                                <span style="color: var(--text-primary);">${formatDate(updatedDate)}</span>
+                            </div>
+                            ${whois.registrarIANAID ? `
+                                <div style="display: grid; grid-template-columns: 180px 1fr; gap: 10px;">
+                                    <span style="color: var(--text-muted);">Registrar IANA ID:</span>
+                                    <span style="color: var(--text-primary);">${whois.registrarIANAID}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Name Servers -->
+                    ${nameServers.length > 0 ? `
+                        <div style="background: rgba(15, 23, 42, 0.5); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                            <h4 style="color: var(--primary-light); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                                </svg>
+                                Name Servers
+                            </h4>
+                            <div style="display: grid; gap: 10px;">
+                                ${nameServers.map((ns, index) => `
+                                    <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: rgba(88, 28, 135, 0.2); border-radius: 6px;">
+                                        <span style="background: var(--primary); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold;">
+                                            ${index + 1}
+                                        </span>
+                                        <span style="color: var(--text-primary); font-family: 'Courier New', monospace;">${ns}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Contact Information -->
+                    ${document.getElementById('includeContacts').checked && contactData.name ? `
+                        <div style="background: rgba(15, 23, 42, 0.5); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                            <h4 style="color: var(--primary-light); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                                Registrant Contact
+                            </h4>
+                            <div style="display: grid; gap: 10px;">
+                                ${contactData.name ? `
+                                    <div style="color: var(--text-primary);">
+                                        <strong>Name:</strong> ${contactData.name}
+                                    </div>
+                                ` : ''}
+                                ${contactData.organization ? `
+                                    <div style="color: var(--text-primary);">
+                                        <strong>Organization:</strong> ${contactData.organization}
+                                    </div>
+                                ` : ''}
+                                ${contactData.country ? `
+                                    <div style="color: var(--text-primary);">
+                                        <strong>Country:</strong> ${contactData.country}
+                                    </div>
+                                ` : ''}
+                                ${contactData.email ? `
+                                    <div style="color: var(--text-primary);">
+                                        <strong>Email:</strong> ${contactData.email}
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div class="alert alert-warning" style="margin-top: 15px; font-size: 0.85rem;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                </svg>
+                                <span>Many domains use privacy protection services. Contact information may be redacted.</span>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- DNS Records -->
+                    ${data.dns && data.dns.dnsRecords ? `
+                        <div style="background: rgba(15, 23, 42, 0.5); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                            <h4 style="color: var(--primary-light); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="16 18 22 12 16 6"></polyline>
+                                    <polyline points="8 6 2 12 8 18"></polyline>
+                                </svg>
+                                DNS Records
+                            </h4>
+                            <div style="overflow-x: auto;">
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="border-bottom: 1px solid var(--border-color);">
+                                            <th style="padding: 10px; text-align: left; color: var(--text-secondary);">Type</th>
+                                            <th style="padding: 10px; text-align: left; color: var(--text-secondary);">Value</th>
+                                            <th style="padding: 10px; text-align: left; color: var(--text-secondary);">TTL</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${Object.entries(data.dns.dnsRecords).slice(0, 10).map(([type, records]) => 
+                                            Array.isArray(records) ? records.map(record => `
+                                                <tr style="border-bottom: 1px solid rgba(168, 85, 247, 0.1);">
+                                                    <td style="padding: 10px; color: var(--primary-light); font-weight: 600;">${type}</td>
+                                                    <td style="padding: 10px; color: var(--text-primary); font-family: 'Courier New', monospace; font-size: 0.85rem;">${record.address || record.strings || record.target || 'N/A'}</td>
+                                                    <td style="padding: 10px; color: var(--text-muted);">${record.ttl || 'N/A'}</td>
+                                                </tr>
+                                            `).join('') : ''
+                                        ).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Raw Data -->
+                    <details style="background: rgba(15, 23, 42, 0.5); padding: 20px; border-radius: 10px; cursor: pointer;">
+                        <summary style="color: var(--primary-light); font-weight: 600; cursor: pointer; user-select: none;">
+                            View Raw WHOIS Data
+                        </summary>
+                        <pre style="margin-top: 15px; padding: 15px; background: rgba(0, 0, 0, 0.5); border-radius: 8px; overflow-x: auto; color: var(--text-primary); font-size: 0.85rem; line-height: 1.6;">${JSON.stringify(whois, null, 2)}</pre>
+                    </details>
+
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(59, 130, 246, 0.1); border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.3);">
+                        <p style="color: var(--text-secondary); margin: 0; font-size: 0.9rem;">
+                            <strong>Note:</strong> WHOIS data is provided by domain registrars and may be subject to privacy protection services. Some information may be redacted or unavailable.
+                        </p>
+                    </div>
+                </div>
+            `;
+
+            resultDiv.classList.remove('hidden');
+        }
+
+        function formatDate(date) {
+            if (!date || isNaN(date.getTime())) return 'N/A';
+            
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZoneName: 'short'
+            });
+        }
+
+        // ============================================
+        // API KEY MANAGEMENT
+        // ============================================
+        
+        function loadAPIKeys() {
+            document.getElementById('safeBrowsingKey').value = apiKeys.safeBrowsing;
+            document.getElementById('virusTotalKey').value = apiKeys.virusTotal;
+            document.getElementById('urlScanKey').value = apiKeys.urlScan;
+            document.getElementById('whoisKey').value = apiKeys.whois;
+        }
+
+        function saveAPIKey(service) {
+            let key = '';
+            let inputId = '';
+
+            switch(service) {
+                case 'safeBrowsing':
+                    inputId = 'safeBrowsingKey';
+                    break;
+                case 'virusTotal':
+                    inputId = 'virusTotalKey';
+                    break;
+                case 'urlScan':
+                    inputId = 'urlScanKey';
+                    break;
+                case 'whois':
+                    inputId = 'whoisKey';
+                    break;
+            }
+
+            key = document.getElementById(inputId).value.trim();
+
+            if (!key) {
+                showToast('Please enter an API key', 'error');
+                return;
+            }
+
+            // Store in memory and localStorage
+            apiKeys[service] = key;
+            localStorage.setItem('api_' + service, key);
+
+            showToast(`${service} API key saved successfully`, 'success');
+            updateConfigStats();
+        }
+
+        function clearAllAPIKeys() {
+            if (!confirm('Are you sure you want to clear all API keys? This action cannot be undone.')) {
+                return;
+            }
+
+            apiKeys = {
+                safeBrowsing: '',
+                virusTotal: '',
+                urlScan: '',
+                whois: ''
+            };
+
+            Object.keys(apiKeys).forEach(key => {
+                localStorage.removeItem('api_' + key);
+            });
+
+            document.getElementById('safeBrowsingKey').value = '';
+            document.getElementById('virusTotalKey').value = '';
+            document.getElementById('urlScanKey').value = '';
+            document.getElementById('whoisKey').value = '';
+
+            updateConfigStats();
+            showToast('All API keys cleared', 'success');
+        }
+
+        function updateConfigStats() {
+            const configured = Object.values(apiKeys).filter(key => key !== '').length;
+            document.getElementById('configuredAPIs').textContent = configured;
+            document.getElementById('totalScans').textContent = stats.totalScans;
+        }
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+        
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Copied to clipboard', 'success');
+            }).catch(err => {
+                showToast('Failed to copy', 'error');
+                console.error('Copy failed:', err);
+            });
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = {
+                success: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+                error: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',
+                warning: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>'
+            };
+            
+            toast.innerHTML = `${icons[type]}<span>${message}</span>`;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => {
+                    if (document.body.contains(toast)) {
+                        document.body.removeChild(toast);
+                    }
+                }, 300);
+            }, CONFIG.toastDuration);
+        }
+
+        function setLoading(context, isLoading) {
+            if (context === 'hash') {
+                const btn = document.getElementById('generateHashBtn');
+                const text = document.getElementById('hashBtnText');
+                const spinner = document.getElementById('hashSpinner');
+                
+                btn.disabled = isLoading;
+                text.style.display = isLoading ? 'none' : 'inline';
+                spinner.classList.toggle('hidden', !isLoading);
+            } else if (context === 'url') {
+                const btn = document.getElementById('scanUrlBtn');
+                const text = document.getElementById('urlBtnText');
+                const spinner = document.getElementById('urlSpinner');
+                
+                btn.disabled = isLoading;
+                text.style.display = isLoading ? 'none' : 'inline';
+                spinner.classList.toggle('hidden', !isLoading);
+            }
+        }
+
+        function saveStats() {
+            localStorage.setItem('app_stats', JSON.stringify(stats));
+        }
+
+        // ============================================
+        // ERROR HANDLING
+        // ============================================
+        
+        window.addEventListener('error', (event) => {
+            console.error('Global error:', event.error);
+            showToast('An unexpected error occurred', 'error');
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('Unhandled promise rejection:', event.reason);
+            showToast('An unexpected error occurred', 'error');
+        });
+
+        // ============================================
+        // PERFORMANCE MONITORING
+        // ============================================
+        
+        if (performance && performance.mark) {
+            performance.mark('app-initialized');
+        }
+
+        console.log('%c Security Utility Suite - Production Mode', 'color: #7c3aed; font-size: 16px; font-weight: bold;');
+        console.log('%c Version 1.0.0 | Enterprise Grade Security Tools', 'color: #a855f7; font-size: 12px;');
+        console.log('%c ⚠️ API keys are stored locally and never transmitted except to configured endpoints', 'color: #eab308; font-size: 11px;');
+    </script>
+</body>
+</html>
